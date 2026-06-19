@@ -1,0 +1,14 @@
+# Local/private material. Keep secrets and memory out of this repo.
+private/*
+!private/README.md
+*.local
+*.local.*
+
+# Runtime noise
+.DS_Store
+__pycache__/
+*.pyc
+
+# Machine-local sync state and backups
+.sync-state/
+backups/
