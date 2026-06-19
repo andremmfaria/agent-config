@@ -1,0 +1,150 @@
+{
+  "schema": "agent-config.openclaw.v1",
+  "workspace": {
+    "path": "./openclaw/workspace",
+    "instruction_files": [
+      "AGENTS.md",
+      "SOUL.md",
+      "IDENTITY.md"
+    ],
+    "optional_private_files": [
+      "USER.md",
+      "TOOLS.md",
+      "MEMORY.md"
+    ]
+  },
+  "agents": [
+    {
+      "agent_id": "main",
+      "name": "Olórin",
+      "role": "Primary assistant",
+      "model": "gpt-5.5",
+      "workspace": "./openclaw/workspace",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "orchestrator",
+      "name": "Aulë",
+      "role": "Breaks complex work into parallel workstreams and delegates",
+      "model": "gpt-5.5",
+      "workspace": "./openclaw/agents/orchestrator",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "researcher",
+      "name": "Rúmil",
+      "role": "Multi-source research and synthesis",
+      "model": "gpt-5.5",
+      "workspace": "./openclaw/agents/researcher",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "thinker",
+      "name": "Námo",
+      "role": "Architecture, tradeoffs, and debugging advice",
+      "model": "gpt-5.5-pro",
+      "workspace": "./openclaw/agents/thinker",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "craftsman",
+      "name": "Celebrimbor",
+      "role": "Autonomous coding and implementation",
+      "model": "gpt-5.5",
+      "workspace": "./openclaw/agents/craftsman",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "planner",
+      "name": "Finrod",
+      "role": "Requirements gathering and strategic planning",
+      "model": "gpt-5.4",
+      "workspace": "./openclaw/agents/planner",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "librarian",
+      "name": "Pengolodh",
+      "role": "Documentation and API reference lookup",
+      "model": "gpt-5.4-mini",
+      "workspace": "./openclaw/agents/librarian",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "writer",
+      "name": "Maglor",
+      "role": "Prose, documentation, and reports",
+      "model": "gpt-5.4",
+      "workspace": "./openclaw/agents/writer",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "scout",
+      "name": "Legolas",
+      "role": "Fast codebase reconnaissance",
+      "model": "gpt-5.4-mini",
+      "workspace": "./openclaw/agents/scout",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "preplanner",
+      "name": "Melian",
+      "role": "Intent classification and hidden requirement surfacing",
+      "model": "gpt-5.4-mini",
+      "workspace": "./openclaw/agents/preplanner",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    },
+    {
+      "agent_id": "reviewer",
+      "name": "Eönwë",
+      "role": "Plan review gate",
+      "model": "gpt-5.5",
+      "workspace": "./openclaw/agents/reviewer",
+      "instruction_files": [
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md"
+      ]
+    }
+  ]
+}
