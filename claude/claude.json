@@ -1,0 +1,73 @@
+{
+  "schema": "agent-config.claude.v1",
+  "global_instruction": "./claude/CLAUDE.md",
+  "default_output_style": {
+    "name": "orchestrator",
+    "path": "./claude/output-styles/orchestrator.md"
+  },
+  "agents": [
+    {
+      "subagent_type": "thinker",
+      "name": "Námo",
+      "model": "opus",
+      "prompt": "./claude/agents/thinker.md",
+      "role": "Architecture decisions, tradeoff analysis, and structured reasoning"
+    },
+    {
+      "subagent_type": "researcher",
+      "name": "Rúmil",
+      "model": "sonnet",
+      "prompt": "./claude/agents/researcher.md",
+      "role": "Multi-source fact-finding, verification, and synthesis"
+    },
+    {
+      "subagent_type": "craftsman",
+      "name": "Celebrimbor",
+      "model": "sonnet",
+      "prompt": "./claude/agents/craftsman.md",
+      "role": "Autonomous coding, multi-file changes, and implementation"
+    },
+    {
+      "subagent_type": "planner",
+      "name": "Finrod",
+      "model": "sonnet",
+      "prompt": "./claude/agents/planner.md",
+      "role": "Requirements interview, strategic planning, and plan output"
+    },
+    {
+      "subagent_type": "writer",
+      "name": "Maglor",
+      "model": "sonnet",
+      "prompt": "./claude/agents/writer.md",
+      "role": "Long-form prose, documentation, reports, and summaries"
+    },
+    {
+      "subagent_type": "reviewer",
+      "name": "Eönwë",
+      "model": "sonnet",
+      "prompt": "./claude/agents/reviewer.md",
+      "role": "Binary plan review gate"
+    },
+    {
+      "subagent_type": "librarian",
+      "name": "Pengolodh",
+      "model": "haiku",
+      "prompt": "./claude/agents/librarian.md",
+      "role": "Fast documentation, API reference, and code search"
+    },
+    {
+      "subagent_type": "scout",
+      "name": "Legolas",
+      "model": "haiku",
+      "prompt": "./claude/agents/scout.md",
+      "role": "Fast reconnaissance and broad codebase sweeps"
+    },
+    {
+      "subagent_type": "preplanner",
+      "name": "Melian",
+      "model": "haiku",
+      "prompt": "./claude/agents/preplanner.md",
+      "role": "Intent classification and hidden-requirement surfacing"
+    }
+  ]
+}
