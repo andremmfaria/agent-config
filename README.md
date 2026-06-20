@@ -1,5 +1,7 @@
 # Agent Config
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Reusable agent instruction files for OpenClaw and Claude Code.
 
 This repo tracks durable prompt/policy surfaces: role definitions, shared safety
