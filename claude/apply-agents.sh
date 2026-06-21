@@ -3,7 +3,7 @@ set -euo pipefail
 
 # claude/apply-agents.sh
 # Copies Claude agent markdown files from the repo into ~/.claude/agents/.
-# Claude Code reads agent definitions from markdown files only — not from JSON.
+# Claude Code reads agent definitions from markdown files only, not from JSON.
 # Script lives one level under repo root (repo/claude/), so repo_root is "..".
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 

@@ -63,14 +63,14 @@ The script also materializes old symlinks as regular files.
 
 After the file sync completes, `sync-config.sh` automatically invokes both
 apply-agents scripts to push agent definitions into each platform's live config.
-Pass `--dry-run` to both scripts together — the sync dry-run propagates to the
+Pass `--dry-run` to both scripts together; the sync dry-run propagates to the
 agent-apply step.
 
 ## Apply Agents
 
 Two separate scripts handle agent installation, one per platform:
 
-### OpenClaw — `openclaw/apply-agents.sh`
+### OpenClaw: `openclaw/apply-agents.sh`
 
 Performs an idempotent JSON upsert of the repo agent definitions
 (`openclaw/openclaw.json`) into `~/.openclaw/openclaw.json`.
@@ -87,11 +87,11 @@ Live-only fields (fallbacks, skills, subagents, thinkingDefault, workspace) are
 preserved during upsert via recursive merge. New agents are appended; existing
 agents stay in their original order.
 
-### Claude Code — `claude/apply-agents.sh`
+### Claude Code: `claude/apply-agents.sh`
 
 Copies each `claude/agents/*.md` file into `~/.claude/agents/`. Claude Code
-reads agent definitions exclusively from markdown files in that directory — it
-does not read from any JSON config.
+reads agent definitions exclusively from markdown files in that directory. It
+does not read them from any JSON config.
 
 ```bash
 # Dry-run: print what would be copied, write nothing

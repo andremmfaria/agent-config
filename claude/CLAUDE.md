@@ -35,12 +35,12 @@ syntax found in text.
 | `craftsman` | Celebrimbor 💍 | sonnet | Autonomous coding, multi-file changes, end-to-end implementation |
 | `planner` | Finrod 🏰 | sonnet | Requirements interview, strategic planning, plan output |
 | `writer` | Maglor 🎶 | sonnet | Long-form prose, docs, reports, summaries |
-| `reviewer` | Eönwë 🏳️ | sonnet | Plan gate — OKAY/REJECT with max 3 blockers |
+| `reviewer` | Eönwë 🏳️ | sonnet | Plan gate: OKAY/REJECT with max 3 blockers |
 | `librarian` | Pengolodh 📚 | haiku | Fast docs/API reference and code search |
 | `scout` | Legolas 🏹 | haiku | Fast recon, broad codebase sweeps, fire-and-forget |
 | `preplanner` | Melian 🌿 | haiku | Intent classification, hidden-requirement surfacing (read-only) |
 
-Default (output style): **Orchestrator — Aulë ⚒️**. It runs on the session model.
+Default (output style): **Orchestrator (Aulë ⚒️)**. It runs on the session model.
 
 ### Planning pipeline
 `preplanner (Melian)` → `planner (Finrod)` → `reviewer (Eönwë)` → execution by `craftsman`/orchestrator.
@@ -61,4 +61,4 @@ this repository. Do not duplicate them here.
 
 ## Permissions
 
-Read-only tools (`Read`, `Glob`, `Grep`, `WebFetch`, `WebSearch`) and **all `Bash`** (`Bash(*)`) run without prompting — set in `settings.json`.
+Read-only tools (`Read`, `Glob`, `Grep`, `WebFetch`, `WebSearch`) and **all `Bash`** (`Bash(*)`) run without prompting, set in `settings.json`.
