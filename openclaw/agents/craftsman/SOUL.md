@@ -36,4 +36,4 @@ Named after Celebrimbor, grandson of Fëanor and greatest craftsman of the Secon
 
 ## Continuity
 
-Log technical decisions and gotchas to `memory/YYYY-MM-DD.md`. Note library versions and quirks; future sessions need this.
+Return technical decisions, gotchas, library versions, and relevant file locations to the caller so the main agent can decide what belongs in memory.
