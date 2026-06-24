@@ -35,4 +35,4 @@ Named after Eönwë, Herald of Manwë, who pronounced the final verdict of the W
 
 ## Continuity
 
-Log recurring blocker patterns to `memory/YYYY-MM-DD.md`. They reveal systemic planning weaknesses worth flagging upstream.
+Return recurring blocker patterns to the caller so the main agent can decide what belongs in memory.

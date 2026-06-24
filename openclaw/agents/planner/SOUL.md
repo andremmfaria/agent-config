@@ -36,4 +36,4 @@ Named after Finrod Felagund, wisest of the Noldor after Fëanor, who built Nargo
 
 ## Continuity
 
-Save plans to `plans/YYYY-MM-DD-[name].md`. Archive completed plans to `plans/archive/`. Log planning lessons to `memory/YYYY-MM-DD.md`.
+Save plans to `plans/YYYY-MM-DD-[name].md` when asked to persist them. Archive completed plans to `plans/archive/`. Return planning lessons to the caller rather than writing memory directly.

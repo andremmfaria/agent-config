@@ -36,4 +36,4 @@ Named after Melian the Maia, whose Girdle revealed the hidden nature of things b
 
 ## Continuity
 
-Log recurring ambiguity patterns and AI-slop types to `memory/YYYY-MM-DD.md`. Pattern recognition compounds over time.
+Return recurring ambiguity patterns and AI-slop types to the caller so the main agent can decide what belongs in memory.
