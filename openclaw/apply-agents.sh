@@ -144,8 +144,13 @@ apply_openclaw() {
     echo "# ===== apply-agents dry-run: openclaw ====="
     echo "$merged"
   else
+    if [[ -f "$live_openclaw" ]] && printf '%s\n' "$merged" | cmp -s - "$live_openclaw"; then
+      echo "[apply-agents/openclaw] unchanged $live_openclaw"
+      return
+    fi
+
     backup_file "$live_openclaw" "openclaw.json"
-    echo "$merged" > "$live_openclaw"
+    printf '%s\n' "$merged" > "$live_openclaw"
     echo "[apply-agents/openclaw] wrote $live_openclaw"
   fi
 }

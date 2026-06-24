@@ -71,6 +71,16 @@ install_file() {
   cp "$src" "$dst"
 }
 
+install_with_backup() {
+  local src="$1"
+  local dst="$2"
+  local backup_label="$3"
+  local relative="$4"
+
+  backup_path "$dst" "$backup_label" "$relative"
+  install_file "$src" "$dst"
+}
+
 choose_sync_direction() {
   local relative="$1"
   local reply
@@ -131,9 +141,6 @@ sync_file() {
     exit 1
   fi
 
-  backup_path "$repo_path" "repo" "$relative"
-  backup_path "$live_path" "live" "$relative"
-
   if [[ "$repo_hash" == "MISSING" && "$live_hash" == "MISSING" ]]; then
     echo "missing both: $relative" >&2
     exit 1
@@ -147,18 +154,18 @@ sync_file() {
     action="same"
     if [[ -L "$live_path" ]]; then
       action="same, materialize live"
-      install_file "$repo_path" "$live_path"
+      install_with_backup "$repo_path" "$live_path" "live" "$relative"
     fi
   else
     direction="$(choose_sync_direction "$relative")"
     case "$direction" in
       "live")
         action="live -> repo"
-        install_file "$live_path" "$repo_path"
+        install_with_backup "$live_path" "$repo_path" "repo" "$relative"
         ;;
       "repo")
         action="repo -> live"
-        install_file "$repo_path" "$live_path"
+        install_with_backup "$repo_path" "$live_path" "live" "$relative"
         ;;
       "skip")
         action="skip"
@@ -214,7 +221,11 @@ sync_managed_files() {
 sync_managed_files
 
 if [[ $dry_run -eq 0 ]]; then
-  echo "backup: $backup_root"
+  if [[ -d "$backup_root" ]]; then
+    echo "backup: $backup_root"
+  else
+    echo "backup: none"
+  fi
 fi
 
 # Apply agent definitions into each platform's live config.

@@ -55,7 +55,7 @@ Synchronize tracked repo files with the live OpenClaw and Claude Code config:
 ./scripts/sync-config.sh
 ```
 
-The sync script only manages files tracked in this repo. It backs up the current repo and live copies under `~/.agent-config-backups/<timestamp>/`, then syncs both directions. Set `AGENT_CONFIG_BACKUP_DIR` to override that location.
+The sync script only manages files tracked in this repo. It compares hashes first, skips files that already match, and only backs up the side it is about to overwrite under `~/.agent-config-backups/<timestamp>/`. Set `AGENT_CONFIG_BACKUP_DIR` to override that location.
 
 Important: sync is not a one-way deploy. When a repo file and its live copy both exist but differ, the script asks what to do. The default is live wins, which copies the live file back into the repo. Choose repo wins when you are deliberately deploying repo-authored prompt edits.
 
@@ -79,11 +79,11 @@ Performs an idempotent JSON upsert of the repo agent definitions (`openclaw/open
 ./openclaw/apply-agents.sh
 ```
 
-Live-only fields (fallbacks, skills, subagents, thinkingDefault, workspace) are preserved during upsert via recursive merge. New agents are appended; existing agents stay in their original order.
+Live-only fields (fallbacks, skills, subagents, thinkingDefault, workspace) are preserved during upsert via recursive merge. New agents are appended; existing agents stay in their original order. If the merged JSON matches the live file, the script prints `unchanged` and does not back up or rewrite it.
 
 ### Claude Code: `claude/apply-agents.sh`
 
-Copies each `claude/agents/*.md` file into `~/.claude/agents/`. Claude Code reads agent definitions exclusively from markdown files in that directory. It does not read them from any JSON config.
+Copies each `claude/agents/*.md` file into `~/.claude/agents/`. Claude Code reads agent definitions exclusively from markdown files in that directory. It does not read them from any JSON config. Matching files are reported as `unchanged` and are not backed up or rewritten.
 
 ```bash
 # Dry-run: print what would be copied, write nothing

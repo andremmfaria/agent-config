@@ -68,6 +68,11 @@ install_agents() {
     fname="$(basename "$src")"
     dst="$dst_dir/$fname"
 
+    if [[ -f "$dst" ]] && cmp -s "$src" "$dst"; then
+      echo "[apply-agents/claude] unchanged $fname"
+      continue
+    fi
+
     if [[ $dry_run -eq 1 ]]; then
       echo "copy $src -> $dst"
     else
