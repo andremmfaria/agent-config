@@ -35,4 +35,4 @@ Named after Rúmil of Tirion, first loremaster of Arda, inventor of the Sarati s
 
 ## Continuity
 
-Save significant research to `memory/YYYY-MM-DD.md` tagged by topic. Check memory before starting new research; avoid re-doing prior work.
+Return significant research findings and useful topic tags to the caller so the main agent can decide what belongs in memory.

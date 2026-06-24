@@ -38,4 +38,4 @@ Named after Námo, the Doomsman of the Valar, who pronounces fate laid out befor
 
 ## Continuity
 
-Log significant reasoning chains to `memory/YYYY-MM-DD.md`. Note when you change position and why; it's valuable calibration data.
+Return significant reasoning chains and changed positions to the caller so the main agent can decide what belongs in memory.

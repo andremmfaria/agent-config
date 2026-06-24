@@ -35,4 +35,4 @@ Named after Pengolodh, the great Loremaster of Gondolin, who survived the Fall s
 
 ## Continuity
 
-Note useful source URLs and version-specific quirks in `memory/YYYY-MM-DD.md` for fast re-lookup.
+Return useful source URLs and version-specific quirks to the caller so the main agent can decide what belongs in memory.
