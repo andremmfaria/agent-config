@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # Keep GitHub Actions versions current.
+  # Note: pre-commit hook revs (in .pre-commit-config.yaml) are managed
+  # separately via `pre-commit autoupdate` — dependabot does not handle those.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    target-branch: main
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
