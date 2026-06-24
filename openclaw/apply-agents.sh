@@ -77,7 +77,7 @@ apply_openclaw() {
   repo_agents="$(jq -c '.agents' "$repo_openclaw")"
 
   # Build the merged openclaw JSON using jq:
-  # For each repo agent, build a fragment {id, name, role, model:{primary:...}}
+  # For each repo agent, build a fragment {id, name, model:{primary:...}}
   # Upsert into .agents.list matched by .id:
   #   - if exists: existing * fragment  (recursive merge; live-only fields preserved)
   #   - if new:    fragment + {workspace: $HOME/.openclaw/agents/<id>/agent}
@@ -96,7 +96,6 @@ apply_openclaw() {
         {
           id:   .agent_id,
           name: .name,
-          role: .role,
           model: { primary: ("openai/" + .model) }
         }
       )) as $fragments |
@@ -106,7 +105,7 @@ apply_openclaw() {
         . as $frag |
         if $live_map[.id] != null then
           # existing: merge live * fragment (live fields win for keys not in fragment,
-          # fragment fields refresh id/name/role/model.primary only)
+          # fragment fields refresh id/name/model.primary only)
           ($live_map[.id] * $frag)
         else
           # new: fragment + computed workspace
@@ -135,7 +134,7 @@ apply_openclaw() {
       # Reconstruct: all other top-level keys unchanged, only .agents.list replaced
       . + {
         agents: (.agents + {
-          list: ($updated_existing + $new_entries)
+          list: (($updated_existing + $new_entries) | map(del(.role)))
         })
       }
       ' <<< "$base_json"

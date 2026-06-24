@@ -49,6 +49,8 @@ Use `sessions_spawn` with the appropriate `agentId` for these task types:
 | Fast API/docs lookup | `librarian` | Free model, fast, precise reference lookups |
 | Long-form writing, reports, summaries | `writer` | Prose-optimized, strong instruction following |
 | Quick background task, broad exploration | `scout` | Cheap nano model, fire-and-forget recon |
+| Intent classification, hidden requirements, pre-planning | `preplanner` | Surfaces shape and risks before planning |
+| Plan review, blocker checks, go/no-go validation | `reviewer` | Independent review gate before execution |
 
 ## How to Delegate
 
