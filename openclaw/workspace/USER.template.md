@@ -4,8 +4,7 @@
 
 ## What They Care About
 
-Describe technical, personal, and communication preferences here without adding
-private secrets or sensitive operational details.
+Describe technical, personal, and communication preferences here without adding private secrets or sensitive operational details.
 
 ## Communication Style
 
