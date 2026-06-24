@@ -16,18 +16,6 @@ esac
 timestamp="$(date +%Y%m%d-%H%M%S)"
 backup_base="${AGENT_CONFIG_BACKUP_DIR:-$HOME/.agent-config-backups}"
 backup_root="$backup_base/$timestamp"
-state_dir="$repo_root/.sync-state"
-state_file="$state_dir/managed-files.tsv"
-next_state="$(mktemp)"
-
-declare -A previous_hashes=()
-
-if [[ -f "$state_file" ]]; then
-  while IFS=$'\t' read -r key hash; do
-    [[ -n "${key:-}" ]] || continue
-    previous_hashes["$key"]="$hash"
-  done < "$state_file"
-fi
 
 sha256_or_missing() {
   local path="$1"
@@ -83,17 +71,60 @@ install_file() {
   cp "$src" "$dst"
 }
 
+choose_sync_direction() {
+  local relative="$1"
+  local reply
+
+  if [[ $dry_run -eq 1 ]]; then
+    echo "prompt"
+    return
+  fi
+
+  if [[ -t 0 ]]; then
+    while true; do
+      {
+        echo
+        echo "Different live/repo file: $relative"
+        echo "  [l] live wins: copy live -> repo (default)"
+        echo "  [r] repo wins: copy repo -> live"
+        echo "  [s] skip this file"
+        printf "Choice [L/r/s]: "
+      } >&2
+
+      IFS= read -r reply || reply=""
+      case "${reply,,}" in
+        ""|"l"|"live")
+          echo "live"
+          return
+          ;;
+        "r"|"repo")
+          echo "repo"
+          return
+          ;;
+        "s"|"skip")
+          echo "skip"
+          return
+          ;;
+        *)
+          echo "Invalid choice: $reply" >&2
+          ;;
+      esac
+    done
+  fi
+
+  echo "different live/repo file, non-interactive default live -> repo: $relative" >&2
+  echo "live"
+}
+
 sync_file() {
   local repo_path="$1"
   local live_path="$2"
   local relative="$3"
-  local key="$relative"
 
-  local repo_hash live_hash base_hash action final_hash
+  local repo_hash live_hash action direction
 
   repo_hash="$(sha256_or_missing "$repo_path")"
   live_hash="$(sha256_or_missing "$live_path")"
-  base_hash="${previous_hashes[$key]:-}"
 
   if [[ "$repo_hash" == "DIRECTORY" || "$live_hash" == "DIRECTORY" ]]; then
     echo "refuse directory: $relative" >&2
@@ -107,34 +138,39 @@ sync_file() {
     echo "missing both: $relative" >&2
     exit 1
   elif [[ "$repo_hash" == "MISSING" ]]; then
-    action="local -> repo"
+    action="live -> repo"
     install_file "$live_path" "$repo_path"
   elif [[ "$live_hash" == "MISSING" ]]; then
-    action="repo -> local"
+    action="repo -> live"
     install_file "$repo_path" "$live_path"
   elif [[ "$repo_hash" == "$live_hash" ]]; then
     action="same"
     if [[ -L "$live_path" ]]; then
-      action="same, materialize local"
+      action="same, materialize live"
       install_file "$repo_path" "$live_path"
     fi
-  elif [[ -z "$base_hash" ]]; then
-    action="conflict, local -> repo"
-    install_file "$live_path" "$repo_path"
-  elif [[ "$repo_hash" != "$base_hash" && "$live_hash" == "$base_hash" ]]; then
-    action="repo -> local"
-    install_file "$repo_path" "$live_path"
-  elif [[ "$repo_hash" == "$base_hash" && "$live_hash" != "$base_hash" ]]; then
-    action="local -> repo"
-    install_file "$live_path" "$repo_path"
   else
-    action="conflict, local -> repo"
-    install_file "$live_path" "$repo_path"
-  fi
-
-  final_hash="$(sha256_or_missing "$repo_path")"
-  if [[ $dry_run -eq 0 ]]; then
-    printf '%s\t%s\n' "$key" "$final_hash" >> "$next_state"
+    direction="$(choose_sync_direction "$relative")"
+    case "$direction" in
+      "live")
+        action="live -> repo"
+        install_file "$live_path" "$repo_path"
+        ;;
+      "repo")
+        action="repo -> live"
+        install_file "$repo_path" "$live_path"
+        ;;
+      "skip")
+        action="skip"
+        ;;
+      "prompt")
+        action="different, would prompt (default live -> repo)"
+        ;;
+      *)
+        echo "unexpected sync direction for $relative: $direction" >&2
+        exit 1
+        ;;
+    esac
   fi
 
   echo "$action: $relative"
@@ -178,12 +214,7 @@ sync_managed_files() {
 sync_managed_files
 
 if [[ $dry_run -eq 0 ]]; then
-  mkdir -p "$state_dir"
-  sort "$next_state" > "$state_file"
-  rm -f "$next_state"
   echo "backup: $backup_root"
-else
-  rm -f "$next_state"
 fi
 
 # Apply agent definitions into each platform's live config.

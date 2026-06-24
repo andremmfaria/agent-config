@@ -15,7 +15,6 @@ openclaw/openclaw.json       Portable OpenClaw-style agent configuration
 claude/                      Claude Code global prompt, agents, and output styles
 claude/claude.json           Portable Claude-style agent configuration
 scripts/                     Sync and validation helpers
-shared/                      Reference snippets, not consumed by sync tooling
 private/                     Ignored local-only drop zone; only private/README.md is tracked
 ```
 
@@ -27,7 +26,6 @@ private/                     Ignored local-only drop zone; only private/README.m
 - sync/check scripts
 - portable runtime configuration JSON
 - implementation instructions for another agent
-- reference snippets that are useful when updating prompt text
 
 ## What Does Not Belong Here
 
@@ -40,8 +38,6 @@ private/                     Ignored local-only drop zone; only private/README.m
 - files under `private/` other than `private/README.md`
 
 ## Directory Status
-
-`shared/` is not part of the install/sync path. It currently contains `shared/untrusted-content-boundary.md`, a reference copy of the safety boundary that is duplicated into the actual prompt files. Keep it only as a canonical editing reference; changing it alone changes no live agent behavior.
 
 `private/` is useful and should stay. It is an ignored landing pad for local-only notes about what must not be committed. Git tracks only `private/README.md`; `.gitignore` excludes the rest of the directory.
 
@@ -61,7 +57,7 @@ Synchronize tracked repo files with the live OpenClaw and Claude Code config:
 
 The sync script only manages files tracked in this repo. It backs up the current repo and live copies under `~/.agent-config-backups/<timestamp>/`, then syncs both directions. Set `AGENT_CONFIG_BACKUP_DIR` to override that location.
 
-Important: sync is not a one-way deploy. It uses `.sync-state/managed-files.tsv` to decide whether the repo or live copy changed. If both sides differ from the remembered base, or there is no remembered base, the live local file wins over the repo. For repo-authored prompt edits, run `./scripts/check-sync.sh` first and make sure you really want any live drift copied back.
+Important: sync is not a one-way deploy. When a repo file and its live copy both exist but differ, the script asks what to do. The default is live wins, which copies the live file back into the repo. Choose repo wins when you are deliberately deploying repo-authored prompt edits.
 
 The script also materializes old symlinks as regular files.
 
@@ -118,7 +114,6 @@ Use this repository as a portable, sanitized agent-definition source. Do not add
 - `openclaw/openclaw.json` describes the workspace and specialist agent layout for the OpenClaw-style runtime.
 - `claude/claude.json` describes the global prompt, default output style, and specialist subagents for the Claude-style runtime.
 - `openclaw/` and `claude/` contain the referenced prompt files.
-- `shared/untrusted-content-boundary.md` contains a reference copy of the safety boundary. It is not imported automatically.
 
 ### Implementation Rules
 
@@ -129,7 +124,7 @@ Use this repository as a portable, sanitized agent-definition source. Do not add
 5. Preserve the agent names, roles, delegation map, and planning pipeline.
 6. For Claude-style agents, use only the model tiers declared in `claude/claude.json`; do not add primary-runtime model names there.
 7. For OpenClaw-style agents, keep model comparisons only in the OpenClaw-side files and config.
-8. After installing, run `./scripts/check-sync.sh` to confirm live files match the repository copies. Use `./scripts/sync-config.sh --dry-run` before applying sync, because conflict resolution prefers live local files.
+8. After installing, run `./scripts/check-sync.sh` to confirm live files match the repository copies. Use `./scripts/sync-config.sh --dry-run` before applying sync, then choose the sync direction explicitly for any differing files.
 
 ### Conflict Policy
 
