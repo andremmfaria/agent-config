@@ -34,7 +34,7 @@ def check(condition: bool, msg: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Frontmatter parser (no PyYAML — line-based scanner)
+# Frontmatter parser (no PyYAML - line-based scanner)
 # ---------------------------------------------------------------------------
 
 def parse_frontmatter(path: Path) -> dict[str, str] | None:
@@ -181,7 +181,7 @@ def validate_output_styles() -> None:
         rel = md.relative_to(REPO_ROOT)
         fm = parse_frontmatter(md)
         if fm is None:
-            continue  # No frontmatter — acceptable for pure prose style files
+            continue  # No frontmatter - acceptable for pure prose style files
         for key in OUTPUT_STYLE_KEYS:
             check(
                 bool(fm.get(key)),
@@ -210,7 +210,7 @@ def main() -> int:
     print()
     print(f"Checks run: {CHECKS}")
     if ERRORS:
-        print(f"FAILED — {len(ERRORS)} problem(s):")
+        print(f"FAILED - {len(ERRORS)} problem(s):")
         for err in ERRORS:
             print(f"  - {err}")
         return 1

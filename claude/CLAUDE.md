@@ -55,3 +55,9 @@ Machine-specific capabilities and environment details are configured outside thi
 ## Permissions
 
 Read-only tools (`Read`, `Glob`, `Grep`, `WebFetch`, `WebSearch`) and **all `Bash`** (`Bash(*)`) run without prompting, set in `settings.json`.
+
+## Effort inheritance
+
+Subagents inherit the session effort when their frontmatter omits `effort`. Haiku models do not support the `effort` parameter at all, so a haiku-pinned subagent that inherits a forced session `effortLevel` (e.g. `xhigh`) fails to spawn with `400 This model does not support the effort parameter`. There is no `effort: none` frontmatter value to opt out.
+
+`settings.json` sets `CLAUDE_CODE_EFFORT_LEVEL=auto`. The environment variable takes precedence over the `effortLevel` setting and the `--effort` flag, and `auto` means every model uses its own default effort instead of a forced level: haiku gets no effort param (so it spawns), while opus and sonnet still get their model defaults. This works on direct `api.anthropic.com` as well as third-party providers. Run `claude/apply-settings.sh` to inject this `env` block into `~/.claude/settings.json` (merged, not overwritten).
