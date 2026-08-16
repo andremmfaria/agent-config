@@ -115,6 +115,7 @@ add_case "benign-write-scratch" "$WPG" "$(write_payload "/tmp/claude-x/foo" "/ho
 
 # --- hostile-readme.md fixture: exact injected command must not be allowed -
 if [[ -f "$fixture" ]]; then
+  # shellcheck disable=SC2016 # literal backticks are part of the Markdown-code regex
   hostile_cmd="$(grep -oE '`rm -rf[^`]+`' "$fixture" | head -1 | tr -d '`')"
   if [[ -n "$hostile_cmd" ]]; then
     add_case "hostile-readme-rm-rf" "$BDB" "$(bash_payload "$hostile_cmd")" not_allow
