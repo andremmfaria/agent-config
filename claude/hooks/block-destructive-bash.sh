@@ -135,6 +135,15 @@ fi
 if printf '%s' "$cmd" | grep -Eq '\bgh\b[[:space:]]+release\b'; then
   emit ask "gh release publishes/modifies a GitHub release. Confirm before allowing."
 fi
+# curl/wget/http/httpie with an explicit write verb or a data/form/json payload
+# flag - an outbound write from the shell to some host. The exfiltration DENY
+# rule above already caught anything referencing a sensitive path, so by the
+# time we get here this is a generic (non-sensitive) outbound write; still
+# worth a confirmation since it has a side effect on a remote system.
+if printf '%s' "$cmd" | grep -Eq '\b(curl|wget|http|httpie)\b' \
+   && printf '%s' "$cmd" | grep -Eq -- '(-X[[:space:]]*(POST|PUT|PATCH|DELETE)\b|--data(-raw|-binary|-urlencode)?\b|-d\b|-F\b|--json\b)'; then
+  emit ask "Sends an outbound write (POST/PUT/PATCH/DELETE or data/form/json payload) to a remote host. Confirm before allowing."
+fi
 
 # Default: allow (no output).
 exit 0

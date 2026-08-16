@@ -5,6 +5,15 @@
   "hooks": {
     "SessionStart": [
       {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/caveman-inject.sh SessionStart",
+            "statusMessage": "Loading caveman mode"
+          }
+        ]
+      },
+      {
         "matcher": "compact",
         "hooks": [
           {
@@ -20,8 +29,24 @@
         "hooks": [
           {
             "type": "command",
+            "command": "~/.claude/hooks/caveman-inject.sh SubagentStart",
+            "statusMessage": "Loading caveman mode"
+          },
+          {
+            "type": "command",
             "command": "~/.claude/hooks/compaction-context-injector.sh SubagentStart",
             "statusMessage": "Re-injecting standing directives"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/agent-usage-reminder.sh",
+            "statusMessage": "Checking for delegation opportunities"
           }
         ]
       }
@@ -34,6 +59,21 @@
             "type": "command",
             "command": "~/.claude/hooks/block-destructive-bash.sh",
             "statusMessage": "Checking command safety"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/bash-file-read-guard.sh",
+            "statusMessage": "Checking file-read pattern"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/write-existing-file-guard.sh",
+            "statusMessage": "Checking read-before-write"
           }
         ]
       },
@@ -48,12 +88,61 @@
         ]
       },
       {
-        "matcher": "Write",
+        "matcher": "WebFetch|WebSearch|mcp__.*fetch.*",
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/write-existing-file-guard.sh",
-            "statusMessage": "Checking read-before-write"
+            "command": "~/.claude/hooks/webfetch-domain-guard.sh",
+            "statusMessage": "Checking outbound fetch target"
+          }
+        ]
+      },
+      {
+        "matcher": "SendMessage|mcp__.*(send|post|publish|email|slack|telegram|discord|tweet|comment|reply)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/outbound-guard.sh",
+            "statusMessage": "Checking outbound message"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/auto-format.sh",
+            "statusMessage": "Auto-formatting changed file"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/comment-checker.sh",
+            "statusMessage": "Checking comments"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/session-notification.sh Stop",
+            "statusMessage": "Notifying: turn complete"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/session-notification.sh Notification",
+            "statusMessage": "Notifying: attention needed"
           }
         ]
       }
