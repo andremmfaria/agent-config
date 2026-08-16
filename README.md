@@ -147,8 +147,8 @@ The **hard layer** inspects actions, not the model's reasoning, so injected text
 
 | Hook | Layer | Claude Code (`claude/hooks/`, event) | OpenClaw (`agent-config-guards`, hook) |
 |---|---|---|---|
-| Destructive-exec guard | hard | `block-destructive-bash.sh` — PreToolUse/Bash | `before_tool_call` on `exec`/`process`/`code_execution` |
-| Write-path guard | hard | `write-path-guard.sh` — PreToolUse/Write\|Edit | `before_tool_call` on `write`/`edit`/`apply_patch` |
+| Destructive-exec guard (ask on really destructive, deny on catastrophic/exfil/gate-tampering) | hard | `block-destructive-bash.sh` — PreToolUse/Bash | `before_tool_call` on `exec`/`process`/`code_execution` |
+| Write-path guard (deny protected paths, ask on overwriting outside workspace) | hard | `write-path-guard.sh` — PreToolUse/Write\|Edit | `before_tool_call` on `write`/`edit`/`apply_patch` |
 | Write-existing-file guard | hard | `write-existing-file-guard.sh` — PreToolUse/Write | `after_tool_call` records reads, `before_tool_call` on `write` denies |
 | Web-fetch domain guard | hard | `webfetch-domain-guard.sh` — PreToolUse/WebFetch\|WebSearch\|mcp fetch | `before_tool_call` on `web_fetch`/`web_search`/`browser` |
 | Outbound guard | hard | `outbound-guard.sh` — PreToolUse/SendMessage\|mcp send-like | `before_tool_call` on `message`/`sessions_send` (+ `message_sending` observe) |
@@ -162,10 +162,12 @@ The **hard layer** inspects actions, not the model's reasoning, so injected text
 
 Semantics: Claude `deny` = OpenClaw `{block: true}`; Claude `ask` = OpenClaw `requireApproval` (timeout denies). Regexes are ported byte-for-byte where the two regex dialects allow. Full per-hook differences are in `openclaw/plugins/agent-config-guards/README.md`.
 
-OpenClaw additionally enforces shell and tool policy outside the plugin (`openclaw/exec-approvals.json`, `openclaw/openclaw.json`, installed with `./openclaw/apply-approvals.sh` and `./openclaw/apply-agents.sh`):
+OpenClaw additionally carries shell and tool policy outside the plugin (`openclaw/exec-approvals.json`, `openclaw/openclaw.json`, installed with `./openclaw/apply-approvals.sh` and `./openclaw/apply-agents.sh`):
 
-- exec approvals default to `security: allowlist`, `ask: on-miss`, `askFallback: deny`; main/orchestrator/craftsman/scout get a read-and-build allowlist, every other role is `deny`. See `openclaw/exec-approvals.md`.
+- exec approvals are `security: full`, `ask: off`, `askFallback: deny` for the coding-capable roles (main, orchestrator, craftsman, scout), so no per-command prompts; destructive gating is the plugin's job. Research and planning roles (researcher, librarian, writer, planner, preplanner, reviewer, thinker) are `security: deny`. See `openclaw/exec-approvals.md`.
 - per-agent `tools.deny` removes `exec`, `process`, `code_execution`, and (for research and planning roles) `write`/`edit`/`apply_patch`.
+
+Policy in one line: reads are always silent; ordinary apply operations (write, commit, push, install, sudo, chmod, gh) are silent; really destructive operations ask (`rm -r`/`rm -f`, `find -delete`, `git reset --hard`, `git clean`, `git checkout --`/`restore`, force-push, `truncate`/`shred`, pipe-to-shell downloads, overwriting an existing file outside the workspace); catastrophic operations, credential exfiltration, and writes to the gate's own files are denied.
 
 Install:
 
