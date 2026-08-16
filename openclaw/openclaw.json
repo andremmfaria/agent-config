@@ -14,7 +14,10 @@
     ]
   },
   "tools": {
-    "profile": "coding"
+    "profile": "coding",
+    "exec": {
+      "mode": "full"
+    }
   },
   "agents": [
     {
