@@ -1,5 +1,62 @@
 {
   "env": {
     "CLAUDE_CODE_EFFORT_LEVEL": "auto"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/compaction-context-injector.sh SessionStart",
+            "statusMessage": "Re-injecting directives after compaction"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/compaction-context-injector.sh SubagentStart",
+            "statusMessage": "Re-injecting standing directives"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/block-destructive-bash.sh",
+            "statusMessage": "Checking command safety"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/write-path-guard.sh",
+            "statusMessage": "Checking write target path"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/write-existing-file-guard.sh",
+            "statusMessage": "Checking read-before-write"
+          }
+        ]
+      }
+    ]
   }
 }
