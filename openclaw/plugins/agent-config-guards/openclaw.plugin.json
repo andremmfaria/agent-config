@@ -1,0 +1,36 @@
+{
+  "id": "agent-config-guards",
+  "name": "Agent Config Guards",
+  "description": "Mirrors the agent-config repo's Claude Code hard-layer hooks (destructive-exec, write-path, write-existing-file, webfetch-domain, outbound, context re-injection, auto-format, comment-checker, file-read nudge, session-notification) as OpenClaw plugin hooks.",
+  "version": "0.1.0",
+  "activation": {
+    "onStartup": true
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "caveman": {
+        "type": "boolean",
+        "description": "Inject the caveman communication-mode directive into every session's system context. Same effect as OPENCLAW_CAVEMAN=1."
+      },
+      "notifyCommand": {
+        "type": ["string", "null"],
+        "description": "Executable to run for session-end/turn-end desktop notifications, e.g. \"notify-send\". null disables notifications."
+      },
+      "webfetchDenylist": {
+        "type": ["string", "null"],
+        "description": "Path to a hostname-glob denylist file, one pattern per line. Defaults to $OPENCLAW_WEBFETCH_DENYLIST or ~/.openclaw/webfetch-denylist.txt."
+      },
+      "protectedPaths": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Extra paths (beyond the built-in SSH/GPG/hooks/settings set) that write-path-guard should treat as protected and deny writes to."
+      },
+      "workspaceOnlyWrites": {
+        "type": "boolean",
+        "description": "When true (default), write-path-guard asks for approval on writes outside the workspace/cwd and recognized scratch dirs; when false, it only enforces the hard-denied protected paths."
+      }
+    }
+  }
+}

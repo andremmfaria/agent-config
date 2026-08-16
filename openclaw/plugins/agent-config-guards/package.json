@@ -1,0 +1,20 @@
+{
+  "name": "agent-config-guards",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenClaw plugin hard-layer: mirrors agent-config's claude/hooks/*.sh guardrails as typed plugin hooks.",
+  "type": "module",
+  "peerDependencies": {
+    "openclaw": ">=2026.7.1"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    }
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.js"
+    ]
+  }
+}
