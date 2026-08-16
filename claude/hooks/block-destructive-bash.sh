@@ -4,8 +4,18 @@
 #   - DENY  catastrophic, irreversible system-level commands outright
 #   - DENY  writes to protected config/secret paths (injection must not be
 #           able to disable this gate or steal credentials)
-#   - ASK   destructive-but-recoverable / commonly-sensitive commands
+#   - DENY  credential/secret exfiltration attempts
+#   - ASK   only commands that are really destructive but recoverable (rm -r/-f,
+#           find -delete/-exec rm, git reset --hard / clean / checkout-discard /
+#           restore, truncate/shred, curl|wget piped into a shell, git push
+#           --force). Everything else (sudo, package installs, chmod +x,
+#           crontab, systemctl, plain git push, gh writes, HTTP write verbs,
+#           ...) is an ordinary apply operation and runs silently.
 #   - allow everything else (stays silent -> normal Bash(*) behaviour)
+#
+# Policy: ask only on really destructive commands; deny only on catastrophic /
+# exfiltration / gate-tampering commands. Ordinary apply operations (writes,
+# commits, pushes, installs, sudo, chmod, gh) are silent by design.
 #
 # Output contract (PreToolUse): hookSpecificOutput.permissionDecision in
 # {deny, ask, allow} with a permissionDecisionReason. Emitting nothing = allow.
@@ -85,6 +95,9 @@ fi
 if printf '%s' "$cmd" | grep -Eq '\brm[[:space:]]+(-[a-zA-Z]*[rR]|-[a-zA-Z]*[fF])'; then
   emit ask "rm with -r/-f deletes without recovery. Confirm the target before allowing."
 fi
+if printf '%s' "$cmd" | grep -Eq '\bfind\b.*-delete\b|\bfind\b.*-exec(dir)?[[:space:]]+rm\b'; then
+  emit ask "find with -delete or -exec/-execdir rm deletes matched files. Confirm before allowing."
+fi
 if printf '%s' "$cmd" | grep -Eq '\bgit[[:space:]]+reset[[:space:]]+(--hard|--keep[[:space:]].*|.*--hard)'; then
   emit ask "git reset --hard discards uncommitted work. Confirm before allowing."
 fi
@@ -98,51 +111,17 @@ if printf '%s' "$cmd" | grep -Eq '\b(truncate|shred)\b'; then
   emit ask "truncate/shred destroys file contents. Confirm before allowing."
 fi
 
-# --- ASK: network / shell / privilege / package / VCS-publish side effects ----
+# --- ASK: remaining really-destructive commands --------------------------------
 # curl|wget piped straight into a shell interpreter (classic "curl | bash").
+# Deliberately kept even though it is a common install pattern: it runs
+# arbitrary, unreviewed remote code.
 if printf '%s' "$cmd" | grep -Eq '\b(curl|wget)\b[^|]*\|[[:space:]]*(sudo[[:space:]]+)?(sh|bash|zsh)\b'; then
   emit ask "Pipes a remote download directly into a shell interpreter. Confirm the source before allowing."
 fi
-# sudo - privilege escalation.
-if printf '%s' "$cmd" | grep -Eq '\bsudo\b'; then
-  emit ask "sudo escalates privileges. Confirm before allowing."
-fi
-# Package/tool installers - mutate the environment, can run arbitrary postinstall code.
-if printf '%s' "$cmd" | grep -Eq '\b(pip3?|npm|npx|pnpm|yarn|cargo|gem)\b[[:space:]]+install\b|\bgo[[:space:]]+install\b|\bbrew[[:space:]]+install\b|\bapt(-get)?[[:space:]]+install\b'; then
-  emit ask "Installs a package - can run arbitrary code (postinstall/build scripts). Confirm before allowing."
-fi
-# crontab - persistent scheduled execution.
-if printf '%s' "$cmd" | grep -Eq '\bcrontab\b'; then
-  emit ask "crontab schedules persistent execution. Confirm before allowing."
-fi
-# systemctl unit lifecycle changes.
-if printf '%s' "$cmd" | grep -Eq '\bsystemctl\b[[:space:]]+(enable|disable|start|stop|restart|mask)\b'; then
-  emit ask "systemctl changes a service's running/boot state. Confirm before allowing."
-fi
-# chmod +x / chmod <mode with 7> - grants execute permission.
-if printf '%s' "$cmd" | grep -Eq '\bchmod\b[[:space:]]+[^[:space:]]*\+x\b|\bchmod\b[[:space:]]+[0-7]*7[0-7]*([[:space:]]|$)'; then
-  emit ask "chmod grants execute permission. Confirm before allowing."
-fi
-# git push to any remote (not just force).
-if printf '%s' "$cmd" | grep -Eq '\bgit[[:space:]]+push\b'; then
-  emit ask "git push publishes commits to a remote. Confirm before allowing."
-fi
-# gh pr/issue comment|create|merge|close - public/irreversible-ish GitHub actions.
-if printf '%s' "$cmd" | grep -Eq '\bgh\b[[:space:]]+(pr|issue)[[:space:]]+(comment|create|merge|close)\b'; then
-  emit ask "Creates/modifies a public GitHub PR or issue. Confirm before allowing."
-fi
-# gh release - publishes a release.
-if printf '%s' "$cmd" | grep -Eq '\bgh\b[[:space:]]+release\b'; then
-  emit ask "gh release publishes/modifies a GitHub release. Confirm before allowing."
-fi
-# curl/wget/http/httpie with an explicit write verb or a data/form/json payload
-# flag - an outbound write from the shell to some host. The exfiltration DENY
-# rule above already caught anything referencing a sensitive path, so by the
-# time we get here this is a generic (non-sensitive) outbound write; still
-# worth a confirmation since it has a side effect on a remote system.
-if printf '%s' "$cmd" | grep -Eq '\b(curl|wget|http|httpie)\b' \
-   && printf '%s' "$cmd" | grep -Eq -- '(-X[[:space:]]*(POST|PUT|PATCH|DELETE)\b|--data(-raw|-binary|-urlencode)?\b|-d\b|-F\b|--json\b)'; then
-  emit ask "Sends an outbound write (POST/PUT/PATCH/DELETE or data/form/json payload) to a remote host. Confirm before allowing."
+# git push --force / --force-with-lease / -f - overwrites remote history.
+# Plain (non-force) git push is an ordinary apply operation and runs silently.
+if printf '%s' "$cmd" | grep -Eq '\bgit[[:space:]]+push\b.*(--force(-with-lease(=[^[:space:]]+)?)?|[[:space:]]-f([[:space:]]|$))'; then
+  emit ask "git push --force/-f overwrites remote history. Confirm before allowing."
 fi
 
 # Default: allow (no output).

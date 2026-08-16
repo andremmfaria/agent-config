@@ -35,6 +35,12 @@ function re(pattern) {
   return new RegExp(pattern);
 }
 
+// Policy: ask only on really destructive commands (data-loss risk that isn't
+// easily recoverable); deny only on catastrophic / exfiltration / gate-
+// tampering commands. Ordinary apply operations (writes, commits, plain
+// pushes, installs, sudo, chmod, gh) run silently — see EXEC_ASK_RULES below,
+// which mirrors claude/hooks/block-destructive-bash.sh's trimmed ASK tier.
+//
 // Ordered like the shell script: hard denies first (catastrophic, then
 // protected-path writes, then exfiltration), then the ask-tier rules.
 const EXEC_DENY_RULES = [
@@ -100,19 +106,16 @@ const EXEC_DENY_RULES = [
 
 const EXEC_ASK_RULES = [
   { id: "rm-r-or-f", test: re("\\brm\\s+(-[a-zA-Z]*[rR]|-[a-zA-Z]*[fF])"), reason: "rm with -r/-f deletes without recovery. Confirm the target before allowing." },
+  { id: "find-delete", test: re("\\bfind\\b.*-delete\\b|\\bfind\\b.*-exec(dir)?\\s+rm\\b"), reason: "find with -delete or -exec/-execdir rm deletes matched files. Confirm before allowing." },
   { id: "git-reset-hard", test: re("\\bgit\\s+reset\\s+(--hard|--keep\\s.*|.*--hard)"), reason: "git reset --hard discards uncommitted work. Confirm before allowing." },
   { id: "git-clean", test: re("\\bgit\\s+clean\\s+-[a-zA-Z]*[fdx]"), reason: "git clean -f/-d/-x deletes untracked files irreversibly. Confirm before allowing." },
   { id: "git-checkout-restore", test: re("\\bgit\\s+(checkout\\s+--\\s|restore\\s)"), reason: "checkout-discard / restore can overwrite local changes. Confirm before allowing." },
   { id: "truncate-shred", test: re("\\b(truncate|shred)\\b"), reason: "truncate/shred destroys file contents. Confirm before allowing." },
+  // Deliberately kept even though it is a common install pattern: it runs
+  // arbitrary, unreviewed remote code.
   { id: "pipe-to-shell", test: re("\\b(curl|wget)\\b[^|]*\\|\\s*(sudo\\s+)?(sh|bash|zsh)\\b"), reason: "Pipes a remote download directly into a shell interpreter. Confirm the source before allowing." },
-  { id: "sudo", test: re("\\bsudo\\b"), reason: "sudo escalates privileges. Confirm before allowing." },
-  { id: "package-install", test: re("\\b(pip3?|npm|npx|pnpm|yarn|cargo|gem)\\b\\s+install\\b|\\bgo\\s+install\\b|\\bbrew\\s+install\\b|\\bapt(-get)?\\s+install\\b"), reason: "Installs a package - can run arbitrary code (postinstall/build scripts). Confirm before allowing." },
-  { id: "crontab", test: re("\\bcrontab\\b"), reason: "crontab schedules persistent execution. Confirm before allowing." },
-  { id: "systemctl", test: re("\\bsystemctl\\b\\s+(enable|disable|start|stop|restart|mask)\\b"), reason: "systemctl changes a service's running/boot state. Confirm before allowing." },
-  { id: "chmod-exec", test: re("\\bchmod\\b\\s+[^\\s]*\\+x\\b|\\bchmod\\b\\s+[0-7]*7[0-7]*(\\s|$)"), reason: "chmod grants execute permission. Confirm before allowing." },
-  { id: "git-push", test: re("\\bgit\\s+push\\b"), reason: "git push publishes commits to a remote. Confirm before allowing." },
-  { id: "gh-pr-issue", test: re("\\bgh\\b\\s+(pr|issue)\\s+(comment|create|merge|close)\\b"), reason: "Creates/modifies a public GitHub PR or issue. Confirm before allowing." },
-  { id: "gh-release", test: re("\\bgh\\b\\s+release\\b"), reason: "gh release publishes/modifies a GitHub release. Confirm before allowing." },
+  // Plain (non-force) git push is an ordinary apply operation and runs silently.
+  { id: "git-push-force", test: re("\\bgit\\s+push\\b.*(--force(-with-lease(=\\S+)?)?|\\s-f(\\s|$))"), reason: "git push --force/-f overwrites remote history. Confirm before allowing." },
 ];
 
 /**
@@ -176,9 +179,20 @@ function buildProtectedPathRegex(homeDir, extra = []) {
  * Mirrors write-path-guard.sh. `path` should already be resolved (absolute)
  * by the caller when possible; this function still lexically normalizes it.
  * `cwd` and `homeDir` are absolute. `scratchPrefixes` are extra allowed
- * prefixes beyond cwd (write-path-guard.sh allows /tmp/claude-*).
+ * prefixes beyond cwd (write-path-guard.sh allows /tmp/claude-*). `fileExists`
+ * (caller-determined via fs, kept out of this pure function) gates the
+ * out-of-scope case: overwriting an existing file far outside the working
+ * tree is the destructive case and asks; creating a brand-new file out there
+ * can't clobber anything, so it is silent.
  */
-function checkWritePathGuard({ path, cwd, homeDir, protectedExtra = [], scratchPrefixes = ["/tmp/claude-"] }) {
+function checkWritePathGuard({
+  path,
+  cwd,
+  homeDir,
+  protectedExtra = [],
+  scratchPrefixes = ["/tmp/claude-"],
+  fileExists = false,
+}) {
   if (!path) return { decision: "allow" };
   const resolved = resolvePathLexical(path, homeDir);
   if (!resolved) return { decision: "allow" };
@@ -197,10 +211,10 @@ function checkWritePathGuard({ path, cwd, homeDir, protectedExtra = [], scratchP
     resolved.startsWith(cwdResolved + "/") ||
     scratchPrefixes.some((prefix) => resolved.startsWith(prefix));
 
-  if (!inScope) {
+  if (!inScope && fileExists) {
     return {
       decision: "ask",
-      reason: `write-path-guard: ${resolved} is outside the working directory (${cwdResolved}) and outside any recognized scratchpad prefix. Confirm before allowing.`,
+      reason: `write-path-guard: ${resolved} is outside the working directory (${cwdResolved}) and outside any recognized scratchpad prefix, and the file already exists. Confirm before overwriting it.`,
     };
   }
 
