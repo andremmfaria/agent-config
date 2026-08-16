@@ -13,8 +13,11 @@ openclaw/workspace/          Main OpenClaw workspace instruction files
 openclaw/agents/             OpenClaw specialist AGENTS.md, SOUL.md, and IDENTITY.md files
 openclaw/openclaw.json       Portable OpenClaw-style agent configuration
 claude/                      Claude Code global prompt, agents, and output styles
+claude/hooks/                Hard-layer Claude Code hooks (PreToolUse gates, post-compaction re-injection)
+openclaw/exec-approvals.json OpenClaw exec approvals (per-agent shell allowlists / deny)
 claude/claude.json           Portable Claude-style agent configuration
-scripts/                     Sync and validation helpers
+shared/                      Shared prompt blocks (untrusted-content boundary) and eval fixtures
+scripts/                     Sync, validation, and hook test helpers
 private/                     Ignored local-only drop zone; only private/README.md is tracked
 ```
 
@@ -23,6 +26,8 @@ private/                     Ignored local-only drop zone; only private/README.m
 - `AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `HEARTBEAT.md`
 - specialist agent role prompts, souls, and identities
 - Claude Code `CLAUDE.md`, agent prompts, and output styles
+- Claude Code hook scripts that gate dangerous tool calls (`claude/hooks/`)
+- shared prompt blocks and prompt-injection eval fixtures (`shared/`)
 - sync/check scripts
 - portable runtime configuration JSON
 - implementation instructions for another agent
@@ -131,3 +136,32 @@ Use this repository as a portable, sanitized agent-definition source. Do not add
 If live local files differ from the repository, prefer the live local file only when it contains intentional private or machine-specific data. Otherwise, update the live file from the repository.
 
 Never copy local private data back into this repository.
+
+
+## Two Layers of Prompt-Injection Defence
+
+The `## Untrusted Content Boundary` block (source of truth: `shared/untrusted-content-boundary.md`, inlined into every agent prompt) is the **soft layer**: it lives in the same token stream as any injected text and only raises the odds that the model treats fetched content as data.
+
+The **hard layer** inspects actions, not the model's reasoning, so injected text cannot argue its way past it.
+
+Claude Code (`claude/hooks/`, wired via `claude/settings.json`, installed with `./claude/apply-hooks.sh`):
+
+- `block-destructive-bash.sh` (PreToolUse/Bash): denies catastrophic commands, credential exfiltration, and writes to protected paths (SSH keys, hook and settings files, git hooks); asks on recursive deletes, `sudo`, package installs, pipe-to-shell downloads, `git push`, `gh pr/issue` actions, and similar.
+- `write-path-guard.sh` (PreToolUse/Write|Edit): denies writes to protected paths, asks on writes outside the working directory.
+- `write-existing-file-guard.sh` (PreToolUse/Write): denies overwriting a file that was never read in the session.
+- `compaction-context-injector.sh` (SessionStart/compact, SubagentStart): re-states the untrusted-content boundary after compaction and at subagent spawn, so it does not decay out of context.
+
+OpenClaw (`openclaw/exec-approvals.json`, `openclaw/openclaw.json`, installed with `./openclaw/apply-approvals.sh` and `./openclaw/apply-agents.sh`):
+
+- exec approvals default to `security: allowlist`, `ask: on-miss`, `askFallback: deny`; main/orchestrator/craftsman/scout get a read-and-build allowlist, every other role is `deny`. See `openclaw/exec-approvals.md`.
+- per-agent `tools.deny` removes `exec`, `process`, `code_execution`, and (for research and planning roles) `write`/`edit`/`apply_patch`.
+
+Testing:
+
+```bash
+./scripts/test-hooks.sh          # table-driven deny/ask/allow assertions for every hook rule
+```
+
+`shared/fixtures/hostile-readme.md` is an eval fixture. Point an agent at it and confirm both layers hold: the model summarizes the injection instead of obeying it, and the hook blocks the command anyway.
+
+Note: the Bash hook pattern-matches the raw command text. Shell heredocs or one-liners that merely *mention* the guarded tools and paths (for example while writing documentation) will trip it. Write such content with a file-writing tool instead.
