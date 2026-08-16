@@ -157,6 +157,13 @@ function register(api) {
     ? cfg.notifyCommand
     : null;
   const protectedExtra = Array.isArray(cfg.protectedPaths) ? cfg.protectedPaths : [];
+  // workspaceOnlyWrites (default true): widens the in-scope set for the
+  // write-path guard beyond cwd/workspace to also include /tmp/claude-* and
+  // the OS tmpdir. This only affects which paths count as "in scope" at all;
+  // the ask-vs-allow decision for anything out of scope is separately gated
+  // by whether the target file already exists (see checkWritePathGuard's
+  // fileExists param) — creating a brand-new file outside the workspace is
+  // never asked about, only overwriting one that already exists there is.
   const workspaceOnlyWrites = cfg.workspaceOnlyWrites !== false; // default true
 
   let denylistPatterns = [];
@@ -210,6 +217,7 @@ function register(api) {
         homeDir: HOME,
         protectedExtra,
         scratchPrefixes: workspaceOnlyWrites ? ["/tmp/claude-", tmpdir() + "/"] : [],
+        fileExists: existsSync(resolved),
       });
       if (result.decision === "allow") return;
       log("write-path-guard", result.decision, resolved);

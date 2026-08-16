@@ -6,7 +6,10 @@
 #     protects from Bash writes - injection must not disable the gate this way
 #     either).
 #   - ASK  a target outside both the session cwd and a /tmp/claude-* scratchpad
-#     dir (writes far outside the working tree are surprising, not routine).
+#     dir, but ONLY if the target file already exists. Overwriting an existing
+#     file far outside the working tree is the destructive case; creating a
+#     brand-new file out there is not (it can't clobber anything), so that
+#     case runs silently.
 #   - allow otherwise.
 # Fails open (emits nothing) on any parse error, so a guard bug never wedges
 # a session.
@@ -71,8 +74,8 @@ case "$resolved" in
   /tmp/claude-*) in_scope=1 ;;
 esac
 
-if [ "$in_scope" -eq 0 ]; then
-  emit ask "write-path-guard: $resolved is outside the working directory ($cwd_resolved) and outside any /tmp/claude-* scratchpad. Confirm before allowing."
+if [ "$in_scope" -eq 0 ] && [ -e "$resolved" ]; then
+  emit ask "write-path-guard: $resolved is outside the working directory ($cwd_resolved) and outside any /tmp/claude-* scratchpad, and the file already exists. Confirm before overwriting it."
 fi
 
 # Default: allow (no output).
