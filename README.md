@@ -13,7 +13,8 @@ openclaw/workspace/          Main OpenClaw workspace instruction files
 openclaw/agents/             OpenClaw specialist AGENTS.md, SOUL.md, and IDENTITY.md files
 openclaw/openclaw.json       Portable OpenClaw-style agent configuration
 claude/                      Claude Code global prompt, agents, and output styles
-claude/hooks/                Hard-layer Claude Code hooks (PreToolUse gates, post-compaction re-injection)
+claude/hooks/                Claude Code hooks (hard-layer gates, context re-injection, style/quality/ux)
+openclaw/plugins/            OpenClaw plugin mirroring the same hooks via the typed plugin hook API
 openclaw/exec-approvals.json OpenClaw exec approvals (per-agent shell allowlists / deny)
 claude/claude.json           Portable Claude-style agent configuration
 shared/                      Shared prompt blocks (untrusted-content boundary) and eval fixtures
@@ -142,24 +143,42 @@ Never copy local private data back into this repository.
 
 The `## Untrusted Content Boundary` block (source of truth: `shared/untrusted-content-boundary.md`, inlined into every agent prompt) is the **soft layer**: it lives in the same token stream as any injected text and only raises the odds that the model treats fetched content as data.
 
-The **hard layer** inspects actions, not the model's reasoning, so injected text cannot argue its way past it.
+The **hard layer** inspects actions, not the model's reasoning, so injected text cannot argue its way past it. Both runtimes carry the same set of hooks, each in its own mechanism: Claude Code uses shell hooks wired in `settings.json`; OpenClaw uses one plugin (`openclaw/plugins/agent-config-guards/`) registered through the typed plugin hook API, because OpenClaw's managed `HOOK.md` hooks cannot block tool calls.
 
-Claude Code (`claude/hooks/`, wired via `claude/settings.json`, installed with `./claude/apply-hooks.sh`):
+| Hook | Layer | Claude Code (`claude/hooks/`, event) | OpenClaw (`agent-config-guards`, hook) |
+|---|---|---|---|
+| Destructive-exec guard | hard | `block-destructive-bash.sh` — PreToolUse/Bash | `before_tool_call` on `exec`/`process`/`code_execution` |
+| Write-path guard | hard | `write-path-guard.sh` — PreToolUse/Write\|Edit | `before_tool_call` on `write`/`edit`/`apply_patch` |
+| Write-existing-file guard | hard | `write-existing-file-guard.sh` — PreToolUse/Write | `after_tool_call` records reads, `before_tool_call` on `write` denies |
+| Web-fetch domain guard | hard | `webfetch-domain-guard.sh` — PreToolUse/WebFetch\|WebSearch\|mcp fetch | `before_tool_call` on `web_fetch`/`web_search`/`browser` |
+| Outbound guard | hard | `outbound-guard.sh` — PreToolUse/SendMessage\|mcp send-like | `before_tool_call` on `message`/`sessions_send` (+ `message_sending` observe) |
+| Boundary re-injection | soft | `compaction-context-injector.sh` — SessionStart(compact), SubagentStart | `before_prompt_build` `prependSystemContext` (every turn, cached) |
+| Caveman directive | style | `caveman-inject.sh` — SessionStart, SubagentStart | same `before_prompt_build` handler, config `caveman: true` |
+| Delegation reminder | style | `agent-usage-reminder.sh` — UserPromptSubmit | same handler, for `main`/`orchestrator` only |
+| File-read nudge | style | `bash-file-read-guard.sh` — PreToolUse/Bash (non-blocking) | `before_tool_call` on `exec` stashes nudge, delivered next `agent_turn_prepare` |
+| Auto-format | quality | `auto-format.sh` — PostToolUse/Write\|Edit | `after_tool_call` on `write`/`edit` |
+| Comment checker | quality | `comment-checker.sh` — PostToolUse/Write\|Edit | `after_tool_call` detects, next `agent_turn_prepare` delivers |
+| Session notification | ux | `session-notification.sh` — Stop, Notification | `session_end`, `agent_end`, config `notifyCommand` |
 
-- `block-destructive-bash.sh` (PreToolUse/Bash): denies catastrophic commands, credential exfiltration, and writes to protected paths (SSH keys, hook and settings files, git hooks); asks on recursive deletes, `sudo`, package installs, pipe-to-shell downloads, `git push`, `gh pr/issue` actions, and similar.
-- `write-path-guard.sh` (PreToolUse/Write|Edit): denies writes to protected paths, asks on writes outside the working directory.
-- `write-existing-file-guard.sh` (PreToolUse/Write): denies overwriting a file that was never read in the session.
-- `compaction-context-injector.sh` (SessionStart/compact, SubagentStart): re-states the untrusted-content boundary after compaction and at subagent spawn, so it does not decay out of context.
+Semantics: Claude `deny` = OpenClaw `{block: true}`; Claude `ask` = OpenClaw `requireApproval` (timeout denies). Regexes are ported byte-for-byte where the two regex dialects allow. Full per-hook differences are in `openclaw/plugins/agent-config-guards/README.md`.
 
-OpenClaw (`openclaw/exec-approvals.json`, `openclaw/openclaw.json`, installed with `./openclaw/apply-approvals.sh` and `./openclaw/apply-agents.sh`):
+OpenClaw additionally enforces shell and tool policy outside the plugin (`openclaw/exec-approvals.json`, `openclaw/openclaw.json`, installed with `./openclaw/apply-approvals.sh` and `./openclaw/apply-agents.sh`):
 
 - exec approvals default to `security: allowlist`, `ask: on-miss`, `askFallback: deny`; main/orchestrator/craftsman/scout get a read-and-build allowlist, every other role is `deny`. See `openclaw/exec-approvals.md`.
 - per-agent `tools.deny` removes `exec`, `process`, `code_execution`, and (for research and planning roles) `write`/`edit`/`apply_patch`.
 
+Install:
+
+```bash
+./claude/apply-hooks.sh        # copies hooks, merges settings.json entries
+./openclaw/apply-plugins.sh    # links the plugin, enables it, validates config; then restart the gateway
+```
+
 Testing:
 
 ```bash
-./scripts/test-hooks.sh          # table-driven deny/ask/allow assertions for every hook rule
+./scripts/test-hooks.sh                # Claude shell hooks: deny/ask/allow per rule
+node scripts/test-openclaw-guards.mjs  # OpenClaw plugin rules: block/approval/allow per rule
 ```
 
 `shared/fixtures/hostile-readme.md` is an eval fixture. Point an agent at it and confirm both layers hold: the model summarizes the injection instead of obeying it, and the hook blocks the command anyway.
