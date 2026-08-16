@@ -13,6 +13,9 @@
       "MEMORY.md"
     ]
   },
+  "tools": {
+    "profile": "coding"
+  },
   "agents": [
     {
       "agent_id": "main",
@@ -48,7 +51,17 @@
         "AGENTS.md",
         "SOUL.md",
         "IDENTITY.md"
-      ]
+      ],
+      "tools": {
+        "deny": [
+          "exec",
+          "process",
+          "code_execution",
+          "write",
+          "edit",
+          "apply_patch"
+        ]
+      }
     },
     {
       "agent_id": "thinker",
@@ -60,7 +73,17 @@
         "AGENTS.md",
         "SOUL.md",
         "IDENTITY.md"
-      ]
+      ],
+      "tools": {
+        "deny": [
+          "exec",
+          "process",
+          "code_execution",
+          "write",
+          "edit",
+          "apply_patch"
+        ]
+      }
     },
     {
       "agent_id": "craftsman",
@@ -84,7 +107,17 @@
         "AGENTS.md",
         "SOUL.md",
         "IDENTITY.md"
-      ]
+      ],
+      "tools": {
+        "deny": [
+          "exec",
+          "process",
+          "code_execution",
+          "write",
+          "edit",
+          "apply_patch"
+        ]
+      }
     },
     {
       "agent_id": "librarian",
@@ -96,7 +129,17 @@
         "AGENTS.md",
         "SOUL.md",
         "IDENTITY.md"
-      ]
+      ],
+      "tools": {
+        "deny": [
+          "exec",
+          "process",
+          "code_execution",
+          "write",
+          "edit",
+          "apply_patch"
+        ]
+      }
     },
     {
       "agent_id": "writer",
@@ -108,7 +151,14 @@
         "AGENTS.md",
         "SOUL.md",
         "IDENTITY.md"
-      ]
+      ],
+      "tools": {
+        "deny": [
+          "exec",
+          "process",
+          "code_execution"
+        ]
+      }
     },
     {
       "agent_id": "scout",
@@ -120,7 +170,14 @@
         "AGENTS.md",
         "SOUL.md",
         "IDENTITY.md"
-      ]
+      ],
+      "tools": {
+        "deny": [
+          "write",
+          "edit",
+          "apply_patch"
+        ]
+      }
     },
     {
       "agent_id": "preplanner",
@@ -132,7 +189,17 @@
         "AGENTS.md",
         "SOUL.md",
         "IDENTITY.md"
-      ]
+      ],
+      "tools": {
+        "deny": [
+          "exec",
+          "process",
+          "code_execution",
+          "write",
+          "edit",
+          "apply_patch"
+        ]
+      }
     },
     {
       "agent_id": "reviewer",
@@ -144,7 +211,17 @@
         "AGENTS.md",
         "SOUL.md",
         "IDENTITY.md"
-      ]
+      ],
+      "tools": {
+        "deny": [
+          "exec",
+          "process",
+          "code_execution",
+          "write",
+          "edit",
+          "apply_patch"
+        ]
+      }
     }
   ]
 }

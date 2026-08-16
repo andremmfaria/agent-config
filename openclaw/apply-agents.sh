@@ -76,16 +76,25 @@ apply_openclaw() {
   local repo_agents
   repo_agents="$(jq -c '.agents' "$repo_openclaw")"
 
+  # Read repo top-level tools policy (e.g. {"profile":"coding"}) for passing to jq
+  local repo_tools_top
+  repo_tools_top="$(jq -c '.tools // {}' "$repo_openclaw")"
+
   # Build the merged openclaw JSON using jq:
-  # For each repo agent, build a fragment {id, name, model:{primary:...}}
+  # For each repo agent, build a fragment {id, name, model:{primary:...}, tools?}
+  # (tools only included when the repo agent defines one, so agents without a
+  # repo-side tools block never have their live tools policy clobbered).
   # Upsert into .agents.list matched by .id:
   #   - if exists: existing * fragment  (recursive merge; live-only fields preserved)
   #   - if new:    fragment + {workspace: $HOME/.openclaw/agents/<id>/agent}
   # DO NOT override existing workspace on update.
+  # Top-level .tools is deep-merged (repo overrides profile, live-only fields
+  # like tools.web survive).
   local merged
   merged="$(
     jq \
       --argjson repo_agents "$repo_agents" \
+      --argjson repo_tools_top "$repo_tools_top" \
       --arg home "$HOME" \
       '
       # Build a lookup map: id -> existing live entry
@@ -98,6 +107,7 @@ apply_openclaw() {
           name: .name,
           model: { primary: ("openai/" + .model) }
         }
+        + (if has("tools") then {tools: .tools} else {} end)
       )) as $fragments |
 
       # Upsert: for each fragment, either merge into existing or create new
@@ -131,8 +141,10 @@ apply_openclaw() {
 
       ($upserted_by_repo | map(select(.id as $id | ($live_map | has($id)) | not))) as $new_entries |
 
-      # Reconstruct: all other top-level keys unchanged, only .agents.list replaced
+      # Reconstruct: all other top-level keys unchanged, .tools deep-merged,
+      # only .agents.list replaced
       . + {
+        tools: ((.tools // {}) * $repo_tools_top),
         agents: (.agents + {
           list: (($updated_existing + $new_entries) | map(del(.role)))
         })
