@@ -2,6 +2,17 @@
   "env": {
     "CLAUDE_CODE_EFFORT_LEVEL": "auto"
   },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "Bash(*)",
+      "Edit(~/.claude/projects/**/memory/**)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
