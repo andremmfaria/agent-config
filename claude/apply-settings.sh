@@ -2,9 +2,10 @@
 set -euo pipefail
 
 # claude/apply-settings.sh
-# Injects the repo's settings.json `env` block and `permissions.allow` list
-# into ~/.claude/settings.json, merging them into any existing settings rather
-# than overwriting the file (env: deep-merge; allow: union, existing order kept).
+# Injects the repo's settings.json `env` block, `permissions.allow` list and
+# `permissions.defaultMode` into ~/.claude/settings.json, merging them into any
+# existing settings rather than overwriting the file (env: deep-merge; allow:
+# union, existing order kept; defaultMode: repo value wins when set).
 # This is how the auto effort level (CLAUDE_CODE_EFFORT_LEVEL=auto) reaches
 # the live config: `auto` makes every model, including haiku subagents, use
 # its own default effort instead of inheriting a forced session effortLevel
@@ -60,8 +61,9 @@ fi
 # Pull the env block to inject from the repo settings.json.
 src_env="$(jq -c '.env // {}' "$src")"
 src_allow="$(jq -c '.permissions.allow // []' "$src")"
-if [[ "$src_env" == "{}" && "$src_allow" == "[]" ]]; then
-  echo "[apply-settings/claude] WARNING: repo settings.json has no env block or permissions.allow; nothing to inject" >&2
+src_mode="$(jq -r '.permissions.defaultMode // empty' "$src")"
+if [[ "$src_env" == "{}" && "$src_allow" == "[]" && -z "$src_mode" ]]; then
+  echo "[apply-settings/claude] WARNING: repo settings.json has no env, permissions.allow or permissions.defaultMode; nothing to inject" >&2
   exit 0
 fi
 
@@ -71,10 +73,11 @@ fi
 existing="{}"
 [[ -f "$dst" ]] && existing="$(cat "$dst")"
 
-merged="$(jq --argjson add "$src_env" --argjson allow "$src_allow" '
+merged="$(jq --argjson add "$src_env" --argjson allow "$src_allow" --arg mode "$src_mode" '
   .env = ((.env // {}) + $add)
   | .permissions.allow = (((.permissions.allow // []) + $allow)
       | reduce .[] as $r ([]; if index([$r]) then . else . + [$r] end))
+  | if $mode != "" then .permissions.defaultMode = $mode else . end
 ' <<<"$existing")"
 
 if [[ -f "$dst" ]] && [[ "$(jq -S . <<<"$existing")" == "$(jq -S . <<<"$merged")" ]]; then
@@ -83,8 +86,9 @@ if [[ -f "$dst" ]] && [[ "$(jq -S . <<<"$existing")" == "$(jq -S . <<<"$merged")
 fi
 
 if [[ $dry_run -eq 1 ]]; then
-  echo "[apply-settings/claude] would inject env + permissions.allow into $dst:"
-  jq -n --argjson env "$src_env" --argjson allow "$src_allow" '{env: $env, "permissions.allow": $allow}'
+  echo "[apply-settings/claude] would inject env + permissions into $dst:"
+  jq -n --argjson env "$src_env" --argjson allow "$src_allow" --arg mode "$src_mode" \
+    '{env: $env, "permissions.allow": $allow, "permissions.defaultMode": $mode}'
   exit 0
 fi
 
@@ -95,4 +99,4 @@ if [[ -f "$dst" ]]; then
 fi
 
 printf '%s\n' "$merged" | jq . >"$dst"
-echo "[apply-settings/claude] injected env + permissions.allow into settings.json"
+echo "[apply-settings/claude] injected env + permissions into settings.json"

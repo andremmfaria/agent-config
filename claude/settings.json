@@ -3,6 +3,7 @@
     "CLAUDE_CODE_EFFORT_LEVEL": "auto"
   },
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
       "Read",
       "Glob",
