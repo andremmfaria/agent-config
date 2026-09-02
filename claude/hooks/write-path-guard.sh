@@ -68,10 +68,15 @@ cwd="$(printf '%s' "$payload" | jq -r '.cwd // empty' 2>/dev/null)"
 [ -z "$cwd" ] && cwd="$PWD"
 cwd_resolved="$(resolve_path "$cwd")"
 
+# Auto-memory lives under ~/.claude/projects/<slug>/memory/ regardless of the
+# session cwd, so updating an existing memory file from any project would
+# otherwise hit the ask below on every call. Memory is Claude's own working
+# state, not user data, so treat it as in scope.
 in_scope=0
 case "$resolved" in
   "$cwd_resolved"|"$cwd_resolved"/*) in_scope=1 ;;
   /tmp/claude-*) in_scope=1 ;;
+  "$HOME"/.claude/projects/*/memory/*) in_scope=1 ;;
 esac
 
 if [ "$in_scope" -eq 0 ] && [ -e "$resolved" ]; then

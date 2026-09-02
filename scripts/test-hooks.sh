@@ -96,7 +96,13 @@ add_case "wpg-allow-new-file-outside" "$WPG" "$(write_payload "/opt/nowhere-bran
 # Existing file outside cwd/scratchpad: destructive (would clobber it) -> ask.
 wpg_existing_file="$(mktemp /tmp/agentconfig-wpg-existing.XXXXXX)"
 add_case "wpg-ask-existing-file-outside" "$WPG" "$(write_payload "$wpg_existing_file" "$repo_root")" ask
-trap 'rm -f "$denylist_file" "$wpg_existing_file"' EXIT
+# Existing auto-memory file outside cwd: Claude's own state -> silent.
+wpg_mem_dir="$HOME/.claude/projects/-agentconfig-wpg-test/memory"
+mkdir -p "$wpg_mem_dir"
+wpg_mem_file="$wpg_mem_dir/existing.md"
+: >"$wpg_mem_file"
+add_case "wpg-allow-existing-memory-file" "$WPG" "$(write_payload "$wpg_mem_file" "$repo_root")" allow
+trap 'rm -f "$denylist_file" "$wpg_existing_file"; rm -rf "$HOME/.claude/projects/-agentconfig-wpg-test"' EXIT
 
 # --- webfetch-domain-guard.sh rules -----------------------------------------
 add_case "wfdg-deny-private-ip" "$WFDG" "$(webfetch_payload WebFetch 'http://192.168.1.1/')" deny
