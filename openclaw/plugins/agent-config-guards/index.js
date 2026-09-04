@@ -200,7 +200,7 @@ function register(api) {
         },
       };
     },
-    { priority: 90, matcher: { toolName: ["exec", "process", "code_execution"] } },
+    { priority: 90, matcher: ["exec", "process", "code_execution"] },
   );
 
   // -- b. write-path guard ---------------------------------------------------
@@ -232,7 +232,7 @@ function register(api) {
         },
       };
     },
-    { priority: 85, matcher: { toolName: ["write", "edit", "apply_patch"] } },
+    { priority: 85, matcher: ["write", "edit", "apply_patch"] },
   );
 
   // -- c. write-existing-file guard ------------------------------------------
@@ -255,7 +255,7 @@ function register(api) {
       log("write-existing-file-guard", result.decision, resolved);
       return { block: true, blockReason: result.reason };
     },
-    { priority: 80, matcher: { toolName: ["write"] } },
+    { priority: 80, matcher: ["write"] },
   );
 
   api.on(
@@ -372,7 +372,7 @@ function register(api) {
         },
       };
     },
-    { priority: 85, matcher: { toolName: ["web_fetch", "web_search", "browser"] } },
+    { priority: 85, matcher: ["web_fetch", "web_search", "browser"] },
   );
 
   // -- e. outbound guard -------------------------------------------------------
@@ -392,7 +392,7 @@ function register(api) {
         },
       };
     },
-    { priority: 85, matcher: { toolName: ["message", "sessions_send"] } },
+    { priority: 85, matcher: ["message", "sessions_send"] },
   );
 
   // message_sending fires for the normal same-channel reply too, and its
@@ -434,7 +434,7 @@ function register(api) {
       log("bash-file-read-guard", "nudge", command);
       stashNotice(ctx.sessionKey, nudge);
     },
-    { priority: 10, matcher: { toolName: ["exec"] } },
+    { priority: 10, matcher: ["exec"] },
   );
 
   // -- i. session-notification ----------------------------------------------------
