@@ -48,7 +48,7 @@ check_file() {
 for file in AGENTS.md SOUL.md IDENTITY.md HEARTBEAT.md; do
   check_file \
     "$repo_root/openclaw/workspace/$file" \
-    "$HOME/.openclaw/workspace/$file" \
+    "$HOME/.openclaw/workspace/main/$file" \
     "openclaw/workspace/$file"
 done
 
