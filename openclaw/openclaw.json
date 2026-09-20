@@ -24,7 +24,7 @@
       "agent_id": "main",
       "name": "Olórin",
       "role": "Primary assistant",
-      "model": "gpt-5.5",
+      "model": "gpt-5.6-sol",
       "workspace": "./openclaw/workspace",
       "instruction_files": [
         "AGENTS.md",
@@ -36,7 +36,7 @@
       "agent_id": "orchestrator",
       "name": "Aulë",
       "role": "Breaks complex work into parallel workstreams and delegates",
-      "model": "gpt-5.5",
+      "model": "gpt-5.6-sol",
       "workspace": "./openclaw/agents/orchestrator",
       "instruction_files": [
         "AGENTS.md",
@@ -48,7 +48,7 @@
       "agent_id": "researcher",
       "name": "Rúmil",
       "role": "Multi-source research and synthesis",
-      "model": "gpt-5.5",
+      "model": "gpt-5.6-sol",
       "workspace": "./openclaw/agents/researcher",
       "instruction_files": [
         "AGENTS.md",
@@ -70,7 +70,7 @@
       "agent_id": "thinker",
       "name": "Námo",
       "role": "Architecture, tradeoffs, and debugging advice",
-      "model": "gpt-5.5-pro",
+      "model": "gpt-6-astra",
       "workspace": "./openclaw/agents/thinker",
       "instruction_files": [
         "AGENTS.md",
@@ -92,7 +92,7 @@
       "agent_id": "craftsman",
       "name": "Celebrimbor",
       "role": "Autonomous coding and implementation",
-      "model": "gpt-5.5",
+      "model": "gpt-5.6-sol",
       "workspace": "./openclaw/agents/craftsman",
       "instruction_files": [
         "AGENTS.md",
@@ -104,7 +104,7 @@
       "agent_id": "planner",
       "name": "Finrod",
       "role": "Requirements gathering and strategic planning",
-      "model": "gpt-5.4",
+      "model": "gpt-5.6-terra",
       "workspace": "./openclaw/agents/planner",
       "instruction_files": [
         "AGENTS.md",
@@ -126,7 +126,7 @@
       "agent_id": "librarian",
       "name": "Pengolodh",
       "role": "Documentation and API reference lookup",
-      "model": "gpt-5.4-mini",
+      "model": "gpt-5.6-luna",
       "workspace": "./openclaw/agents/librarian",
       "instruction_files": [
         "AGENTS.md",
@@ -148,7 +148,7 @@
       "agent_id": "writer",
       "name": "Maglor",
       "role": "Prose, documentation, and reports",
-      "model": "gpt-5.4",
+      "model": "gpt-5.6-terra",
       "workspace": "./openclaw/agents/writer",
       "instruction_files": [
         "AGENTS.md",
@@ -167,7 +167,7 @@
       "agent_id": "scout",
       "name": "Legolas",
       "role": "Fast codebase reconnaissance",
-      "model": "gpt-5.4-mini",
+      "model": "gpt-5.6-luna",
       "workspace": "./openclaw/agents/scout",
       "instruction_files": [
         "AGENTS.md",
@@ -186,7 +186,7 @@
       "agent_id": "preplanner",
       "name": "Melian",
       "role": "Intent classification and hidden requirement surfacing",
-      "model": "gpt-5.4-mini",
+      "model": "gpt-5.6-luna",
       "workspace": "./openclaw/agents/preplanner",
       "instruction_files": [
         "AGENTS.md",
@@ -208,7 +208,7 @@
       "agent_id": "reviewer",
       "name": "Eönwë",
       "role": "Plan review gate",
-      "model": "gpt-5.5",
+      "model": "gpt-5.6-sol",
       "workspace": "./openclaw/agents/reviewer",
       "instruction_files": [
         "AGENTS.md",
