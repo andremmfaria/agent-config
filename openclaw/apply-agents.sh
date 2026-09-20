@@ -69,7 +69,7 @@ apply_openclaw() {
     base_json="$(cat "$live_openclaw")"
   else
     echo "# [apply-agents/openclaw] WARNING: $live_openclaw not found; using empty base" >&2
-    base_json='{"agents":{"defaults":{},"list":[]}}'
+    base_json='{"agents":{"defaults":{},"entries":{}}}'
   fi
 
   # Read repo agents array as compact JSON for passing to jq
@@ -81,13 +81,16 @@ apply_openclaw() {
   repo_tools_top="$(jq -c '.tools // {}' "$repo_openclaw")"
 
   # Build the merged openclaw JSON using jq:
-  # For each repo agent, build a fragment {id, name, model:{primary:...}, tools?}
+  # For each repo agent, build a fragment {name, model:{primary:...}, tools?}
   # (tools only included when the repo agent defines one, so agents without a
   # repo-side tools block never have their live tools policy clobbered).
-  # Upsert into .agents.list matched by .id:
-  #   - if exists: existing * fragment  (recursive merge; live-only fields preserved)
-  #   - if new:    fragment + {workspace: $HOME/.openclaw/agents/<id>/agent}
+  # Upsert into .agents.entries (an OBJECT keyed by agent id, since OpenClaw
+  # 2026.9.1 replaced the legacy .agents.list array):
+  #   - if key exists: existing * fragment  (recursive merge; live-only fields
+  #     preserved, e.g. workspace, skills, thinkingDefault, models)
+  #   - if key is new: fragment + {workspace: $HOME/.openclaw/agents/<id>/agent}
   # DO NOT override existing workspace on update.
+  # .agents.defaults and .agents.ownership are left untouched.
   # Top-level .tools is deep-merged (repo overrides profile, live-only fields
   # like tools.web survive).
   local merged
@@ -97,56 +100,55 @@ apply_openclaw() {
       --argjson repo_tools_top "$repo_tools_top" \
       --arg home "$HOME" \
       '
-      # Build a lookup map: id -> existing live entry
-      (.agents.list | map({key: .id, value: .}) | from_entries) as $live_map |
+      # Build a lookup object: id -> existing live entry
+      ((.agents.entries // {})) as $live_entries |
 
-      # Build list of repo agent fragments
-      ($repo_agents | map(
-        {
-          id:   .agent_id,
-          name: .name,
-          model: { primary: ("openai/" + .model) }
-        }
-        + (if has("tools") then {tools: .tools} else {} end)
-      )) as $fragments |
+      # Build id -> fragment map from the repo agent array
+      ($repo_agents | map({
+        key: .agent_id,
+        value: (
+          {
+            name:  .name,
+            model: { primary: ("openai/" + .model) }
+          }
+          + (if has("tools") then {tools: .tools} else {} end)
+        )
+      }) | from_entries) as $fragments |
 
-      # Upsert: for each fragment, either merge into existing or create new
-      ($fragments | map(
-        . as $frag |
-        if $live_map[.id] != null then
-          # existing: merge live * fragment (live fields win for keys not in fragment,
-          # fragment fields refresh id/name/model.primary only)
-          ($live_map[.id] * $frag)
+      # Upsert: for each fragment id, merge into existing entry or create new
+      ($fragments | to_entries | map(
+        . as $f |
+        if ($live_entries[$f.key] != null) then
+          # existing: merge live * fragment (live fields win for keys not in
+          # fragment; fragment refreshes name/model.primary/tools only)
+          { key: $f.key, value: (($live_entries[$f.key] * $f.value) | del(.role)) }
         else
           # new: fragment + computed workspace
-          ($frag + {workspace: ($home + "/.openclaw/agents/" + .id + "/agent")})
+          { key: $f.key, value: ($f.value + {workspace: ($home + "/.openclaw/agents/" + $f.key + "/agent")}) }
         end
-      )) as $upserted_by_repo |
+      ) | from_entries) as $upserted_by_repo |
 
-      # Build set of repo agent ids for fast lookup
-      ($fragments | map(.id) | unique) as $repo_ids |
-
-      # Final list: preserve existing entries in their original order (updating if
-      # in repo), then append new entries (those in repo but not yet in live)
-      (.agents.list | map(
-        . as $live_entry |
-        # Find matching fragment (if any)
-        ($fragments | map(select(.id == $live_entry.id)) | first) as $frag |
-        if $frag != null then
-          ($live_entry * $frag)
+      # Existing live entries: apply the upsert result where the id is in the
+      # repo, otherwise leave the live-only entry (e.g. "main") untouched.
+      ($live_entries | to_entries | map(
+        .key as $k |
+        if ($upserted_by_repo | has($k)) then
+          { key: $k, value: $upserted_by_repo[$k] }
         else
-          $live_entry
+          .
         end
-      )) as $updated_existing |
+      ) | from_entries) as $existing_merged |
 
-      ($upserted_by_repo | map(select(.id as $id | ($live_map | has($id)) | not))) as $new_entries |
+      # New entries: in repo but not yet in live
+      ($upserted_by_repo | to_entries | map(select(.key as $k | ($existing_merged | has($k)) | not)) | from_entries) as $new_entries |
 
       # Reconstruct: all other top-level keys unchanged, .tools deep-merged,
-      # only .agents.list replaced
+      # only .agents.entries replaced (.agents.defaults/.ownership preserved
+      # via the base .agents spread)
       . + {
         tools: ((.tools // {}) * $repo_tools_top),
         agents: (.agents + {
-          list: (($updated_existing + $new_entries) | map(del(.role)))
+          entries: ($existing_merged + $new_entries)
         })
       }
       ' <<< "$base_json"
