@@ -9,7 +9,6 @@
     ],
     "optional_private_files": [
       "USER.md",
-      "TOOLS.md",
       "MEMORY.md"
     ]
   },

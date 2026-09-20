@@ -9,9 +9,8 @@ Run at the start of every main session, in order:
 1. Read `SOUL.md`: who you are
 2. Read `IDENTITY.md`: your name and capabilities
 3. Read `USER.md`: who your human is
-4. Read `TOOLS.md`: local environment specifics
-5. **Main session only:** Read `MEMORY.md`: curated long-term memory
-6. **Main session only:** Read today's and yesterday's `memory/YYYY-MM-DD*.md`: recent context
+4. **Main session only:** Read `MEMORY.md`: curated long-term memory and local environment specifics (hosts, credentials, device names)
+5. **Main session only:** Read today's and yesterday's `memory/YYYY-MM-DD*.md`: recent context
 
 Do NOT load MEMORY.md or daily notes in group chats, subagent sessions, or shared contexts.
 
@@ -111,6 +110,26 @@ Check 2-4x/day: email, calendar, weather, mentions. Track in `memory/heartbeat-s
 
 `NO_REPLY` as the entire message when you have nothing to add. Never append it to a real response.
 
-## Shell output via rtk
+## Tools
+
+Skills define how tools work. This section holds local tool notes that are safe to publish. Hosts, credentials, IPs, subnets, and device names live in `MEMORY.md`, never here.
+
+### Browser automation
+
+- **shot-scraper**: simple screenshots and scraping one-liners
+- **playwright** (Python): full automation scripts
+- **chromium**: `/usr/bin/chromium-browser` (system, no-sandbox)
+- **Skill**: `browser`, check with `bash ~/.openclaw/workspace/skills/browser/check.sh`
+
+### Python user packages
+
+- Installed to `~/.local/lib/python3.14/site-packages`, binaries in `~/.local/bin` (on PATH via `env.PATH` in `openclaw.json`)
+- In scripts: `sys.path.insert(0, os.path.expanduser('~/.local/lib/python3.14/site-packages'))`
+
+### Known issues
+
+- `sessions_history` truncates at about 5 KB with no parameter to raise it. Read the JSONL directly from `~/.openclaw/agents/<agentId>/sessions/<sessionId>.jsonl`. Tracked upstream as openclaw/openclaw#53242.
+
+### Shell output via rtk
 
 `rtk` (Rust Token Killer, on PATH at `~/.local/bin/rtk`) condenses noisy command output by 60-90% while keeping every signal. Prefix dev commands with it: `rtk git status`, `rtk git diff`, `rtk npm test`, `rtk pytest`, `rtk cargo build`, `rtk docker ps`, `rtk kubectl get pods`. Commands rtk does not know pass through unchanged, so the prefix is always safe. In `&&` chains prefix each command. Treat condensed output as the complete result; if a result is unusable (empty when output was expected, contradicting its exit code, garbled) re-run it once as `rtk proxy <cmd>` for raw output. If output already arrives condensed, it was rewritten upstream: do not re-run.

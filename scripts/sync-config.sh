@@ -187,7 +187,7 @@ sync_managed_files() {
   local file src agent_id
 
   # OpenClaw main-agent (Olórin) workspace files. Since 2026.9.1 an explicit multi-agent roster
-  # resolves main to <agents.defaults.workspace>/main. USER.md, TOOLS.md, MEMORY.md, and daily notes stay private.
+  # resolves main to <agents.defaults.workspace>/main. USER.md, MEMORY.md, and daily notes stay private.
   for file in AGENTS.md SOUL.md IDENTITY.md HEARTBEAT.md; do
     sync_file \
       "$repo_root/openclaw/workspace/$file" \

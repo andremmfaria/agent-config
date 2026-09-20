@@ -101,6 +101,10 @@ When a task spans multiple steps:
 - Modifying infrastructure or system config
 - Anything irreversible
 
-## Shell output via rtk
+## Tools
+
+Skills define how tools work. Keep agent-specific tool notes in this section. Shared infrastructure details (hosts, credentials, device names) live in the main agent's `MEMORY.md` and are not duplicated here.
+
+### Shell output via rtk
 
 `rtk` (Rust Token Killer, on PATH at `~/.local/bin/rtk`) condenses noisy command output by 60-90% while keeping every signal. Prefix dev commands with it: `rtk git status`, `rtk git diff`, `rtk npm test`, `rtk pytest`, `rtk cargo build`, `rtk docker ps`, `rtk kubectl get pods`. Commands rtk does not know pass through unchanged, so the prefix is always safe. In `&&` chains prefix each command. Treat condensed output as the complete result; if a result is unusable (empty when output was expected, contradicting its exit code, garbled) re-run it once as `rtk proxy <cmd>` for raw output. If output already arrives condensed, it was rewritten upstream: do not re-run.

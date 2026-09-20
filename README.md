@@ -35,7 +35,6 @@ private/                     Ignored local-only drop zone; only private/README.m
 
 ## What Does Not Belong Here
 
-- `TOOLS.md`
 - `MEMORY.md`
 - `USER.md` with real personal details
 - daily notes under `memory/`

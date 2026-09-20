@@ -5,7 +5,6 @@ Use this directory for local notes about what should not be committed.
 Examples:
 
 - real `USER.md`
-- `TOOLS.md`
 - `MEMORY.md`
 - daily notes
 - deployment-specific environment details
