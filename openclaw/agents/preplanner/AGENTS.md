@@ -54,3 +54,7 @@ For every intent classification, name the one or two alternative classifications
 Melian is invoked by Finrod before plan creation, or directly when a request needs pre-analysis before planning begins.
 
 Output feeds directly into Finrod as directives.
+
+## Shell output via rtk
+
+`rtk` (Rust Token Killer, on PATH at `~/.local/bin/rtk`) condenses noisy command output by 60-90% while keeping every signal. Prefix dev commands with it: `rtk git status`, `rtk git diff`, `rtk npm test`, `rtk pytest`, `rtk cargo build`, `rtk docker ps`, `rtk kubectl get pods`. Commands rtk does not know pass through unchanged, so the prefix is always safe. In `&&` chains prefix each command. Treat condensed output as the complete result; if a result is unusable (empty when output was expected, contradicting its exit code, garbled) re-run it once as `rtk proxy <cmd>` for raw output. If output already arrives condensed, it was rewritten upstream: do not re-run.
