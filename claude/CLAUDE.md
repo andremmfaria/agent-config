@@ -50,7 +50,11 @@ Default (output style): **Orchestrator (Aulë ⚒️)**. It runs on the session 
 
 ## Skills
 
-Machine-specific capabilities and environment details are configured outside this repository. Do not duplicate them here.
+Machine-specific capabilities and environment details are configured outside this repository. Do not duplicate their implementation here.
+
+Available local skills:
+
+- `resilient-web-access` — Search and fetch normally, then retry genuinely blocked public pages through native Fortress Chromium. Run `bash ~/.claude/skills/resilient-web-access/check.sh` to verify dependencies.
 
 ## Permissions
 
@@ -61,3 +65,9 @@ Read-only tools (`Read`, `Glob`, `Grep`, `WebFetch`, `WebSearch`) and **all `Bas
 Subagents inherit the session effort when their frontmatter omits `effort`. Haiku models do not support the `effort` parameter at all, so a haiku-pinned subagent that inherits a forced session `effortLevel` (e.g. `xhigh`) fails to spawn with `400 This model does not support the effort parameter`. There is no `effort: none` frontmatter value to opt out.
 
 `settings.json` sets `CLAUDE_CODE_EFFORT_LEVEL=auto`. The environment variable takes precedence over the `effortLevel` setting and the `--effort` flag, and `auto` means every model uses its own default effort instead of a forced level: haiku gets no effort param (so it spawns), while opus and sonnet still get their model defaults. This works on direct `api.anthropic.com` as well as third-party providers. Run `claude/apply-settings.sh` to inject this `env` block, the `permissions.allow` list (incl. `Edit(~/.claude/projects/**/memory/**)` so auto-memory edits never prompt) and `permissions.defaultMode: acceptEdits` into `~/.claude/settings.json` (merged, not overwritten). `acceptEdits` is deliberate: in `auto` mode `.claude/**` is a protected path, so allow rules never pre-approve memory edits and every one prompts individually; `acceptEdits` skips edit prompts while the PreToolUse hooks still deny protected targets.
+
+## Command output (rtk)
+
+<!-- rtk-instructions v2 -->
+Command output here is condensed by `rtk` (Rust Token Killer, `~/.local/bin/rtk`) to save tokens, keeping every signal and dropping costly noise. A PreToolUse hook rewrites known dev commands (git, npm, cargo, pytest, docker, ...) to `rtk <cmd>` automatically. Treat condensed output as the complete result: run commands normally, and batch related commands into one call to avoid extra turns. Truncated results state their recovery path in their own output. Re-run a command as `rtk proxy <cmd>` only when its result is unusable: empty when output was clearly expected, contradicting its exit code, or garbled.
+<!-- /rtk-instructions -->

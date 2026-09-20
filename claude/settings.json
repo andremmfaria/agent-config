@@ -76,6 +76,11 @@
             "type": "command",
             "command": "~/.claude/hooks/bash-file-read-guard.sh",
             "statusMessage": "Checking file-read pattern"
+          },
+          {
+            "type": "command",
+            "command": "~/.local/bin/rtk hook claude",
+            "statusMessage": "rtk: rewriting to token-filtered command"
           }
         ]
       },
