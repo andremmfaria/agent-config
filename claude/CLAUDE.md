@@ -56,6 +56,10 @@ Available local skills:
 
 - `resilient-web-access` — Search and fetch normally, then retry genuinely blocked public pages through native Fortress Chromium. Run `bash ~/.claude/skills/resilient-web-access/check.sh` to verify dependencies.
 
+## Integrations
+
+Prefer a shell CLI plus its skill over an MCP server for any integration that offers both. AWS, GitHub, Atlassian, Datadog, BetterStack, Cloudflare, Vanta, Google Workspace, Octopus and NetBird are all driven through their CLI and skill deliberately, not through an MCP server. Reach for an MCP server only where no CLI path exists.
+
 ## Permissions
 
 Read-only tools (`Read`, `Glob`, `Grep`, `WebFetch`, `WebSearch`) and **all `Bash`** (`Bash(*)`) run without prompting, set in `settings.json`.
