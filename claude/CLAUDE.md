@@ -52,9 +52,19 @@ Default (output style): **Orchestrator**. It runs on the session model.
 
 Machine-specific capabilities and environment details are configured outside this repository. Do not duplicate their implementation here.
 
-Available local skills:
+Skills load on demand: only the name and description sit in context until one is invoked.
 
+- **Cloud and ops CLIs:** `aws`, `oci`, `github`, `atlassian`, `cloudflare`, `datadog`, `betterstack`, `octopus`, `netbird`, `jumpcloud`, `vanta`, `gogcli`, `slack`, `trunk`
+- **SRE and diagnostics:** `sre-tools` (`ecs-diag.sh` spawns a temporary SSM-enabled diagnostic Fargate container cloned from a target ECS service's network and roles, so private RDS and VPC resources are reachable without touching the running app)
+- **Workflow and engineering practice:** `brainstorming`, `writing-plans`, `executing-plans`, `subagent-driven-development`, `dispatching-parallel-agents`, `test-driven-development`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`, `finishing-a-development-branch`, `using-git-worktrees`, `using-superpowers`, `writing-skills`
+- **Comms:** `comms-style`, invoked before drafting any outbound text (Slack, Jira comments and descriptions, GitHub PRs and review comments, email). It strips AI tone, applies per-medium shape and length rules, and returns paste-ready text only
+- **Knowledge:** `graphify`, turns any input into a persistent knowledge graph
+- **Other:** `caveman` (token compression), `grill-me` (adversarial plan interrogation), `impeccable` (frontend design review)
 - `resilient-web-access` — Search and fetch normally, then retry genuinely blocked public pages through native Fortress Chromium. Run `bash ~/.claude/skills/resilient-web-access/check.sh` to verify dependencies.
+
+### Triggers
+
+When the user types `/graphify`, use the installed `graphify` skill (`~/.claude/skills/graphify/SKILL.md`) before doing anything else.
 
 ## Integrations
 
