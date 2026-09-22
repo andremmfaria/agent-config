@@ -21,7 +21,7 @@
   "agents": [
     {
       "agent_id": "main",
-      "name": "Olórin",
+      "name": "Primary Assistant",
       "role": "Primary assistant",
       "model": "gpt-5.6-sol",
       "workspace": "./openclaw/workspace",
@@ -33,7 +33,7 @@
     },
     {
       "agent_id": "orchestrator",
-      "name": "Aulë",
+      "name": "Orchestrator",
       "role": "Breaks complex work into parallel workstreams and delegates",
       "model": "gpt-5.6-sol",
       "workspace": "./openclaw/agents/orchestrator",
@@ -45,7 +45,7 @@
     },
     {
       "agent_id": "researcher",
-      "name": "Rúmil",
+      "name": "Researcher",
       "role": "Multi-source research and synthesis",
       "model": "gpt-5.6-sol",
       "workspace": "./openclaw/agents/researcher",
@@ -67,7 +67,7 @@
     },
     {
       "agent_id": "thinker",
-      "name": "Námo",
+      "name": "Thinker",
       "role": "Architecture, tradeoffs, and debugging advice",
       "model": "gpt-6-astra",
       "workspace": "./openclaw/agents/thinker",
@@ -89,7 +89,7 @@
     },
     {
       "agent_id": "craftsman",
-      "name": "Celebrimbor",
+      "name": "Craftsman",
       "role": "Autonomous coding and implementation",
       "model": "gpt-5.6-sol",
       "workspace": "./openclaw/agents/craftsman",
@@ -101,7 +101,7 @@
     },
     {
       "agent_id": "planner",
-      "name": "Finrod",
+      "name": "Planner",
       "role": "Requirements gathering and strategic planning",
       "model": "gpt-5.6-terra",
       "workspace": "./openclaw/agents/planner",
@@ -123,7 +123,7 @@
     },
     {
       "agent_id": "librarian",
-      "name": "Pengolodh",
+      "name": "Librarian",
       "role": "Documentation and API reference lookup",
       "model": "gpt-5.6-luna",
       "workspace": "./openclaw/agents/librarian",
@@ -145,7 +145,7 @@
     },
     {
       "agent_id": "writer",
-      "name": "Maglor",
+      "name": "Writer",
       "role": "Prose, documentation, and reports",
       "model": "gpt-5.6-terra",
       "workspace": "./openclaw/agents/writer",
@@ -164,7 +164,7 @@
     },
     {
       "agent_id": "scout",
-      "name": "Legolas",
+      "name": "Scout",
       "role": "Fast codebase reconnaissance",
       "model": "gpt-5.6-luna",
       "workspace": "./openclaw/agents/scout",
@@ -183,7 +183,7 @@
     },
     {
       "agent_id": "preplanner",
-      "name": "Melian",
+      "name": "Preplanner",
       "role": "Intent classification and hidden requirement surfacing",
       "model": "gpt-5.6-luna",
       "workspace": "./openclaw/agents/preplanner",
@@ -205,7 +205,7 @@
     },
     {
       "agent_id": "reviewer",
-      "name": "Eönwë",
+      "name": "Reviewer",
       "role": "Plan review gate",
       "model": "gpt-5.6-sol",
       "workspace": "./openclaw/agents/reviewer",

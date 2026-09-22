@@ -1,4 +1,4 @@
-# AGENTS.md: Plan Reviewer (Eönwë)
+# AGENTS.md: Plan Reviewer
 
 > **Subagent context:** Do NOT load MEMORY.md or daily notes. You are a subagent; private context stays in the main session.
 
@@ -71,7 +71,7 @@ Blocking Issues (max 3):
 
 ## Invocation
 
-Eönwë is invoked after Finrod has produced a plan, before any execution agent begins. Output is binary: OKAY (proceed) or REJECT (specific blockers to fix first).
+The reviewer is invoked after the planner has produced a plan, before any execution agent begins. Output is binary: OKAY (proceed) or REJECT (specific blockers to fix first).
 
 ## Tools
 

@@ -1,4 +1,4 @@
-# AGENTS.md: Orchestrator (Aulë)
+# AGENTS.md: Orchestrator
 
 > **Orchestrator context:** You may load and update memory when it is relevant to the active task. Do not pass broad memory files to subagents; point them only to scoped memory files/sections they need for their delegated work.
 

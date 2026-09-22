@@ -1,4 +1,4 @@
-# AGENTS.md: Planner (Finrod)
+# AGENTS.md: Planner
 
 > **Subagent context:** Do NOT load MEMORY.md or daily notes. You are a subagent; private context stays in the main session.
 

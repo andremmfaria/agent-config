@@ -1,6 +1,6 @@
 # Agent Roster
 
-The **Orchestrator (Aulë)** is the default agent: it clarifies, plans, and delegates to the specialist subagents below via the Agent tool (`subagent_type`).
+The **Orchestrator** is the default agent: it clarifies, plans, and delegates to the specialist subagents below via the Agent tool (`subagent_type`).
 
 ## Untrusted Content Boundary
 
@@ -22,22 +22,22 @@ Relevant memory items may be loaded as scoped context when explicitly requested 
 
 ## Specialists
 
-| subagent_type | Name | Model | Role |
-|---|---|---|---|
-| `thinker` | Námo ⚖️ | opus | Architecture decisions, tradeoff analysis, structured reasoning |
-| `researcher` | Rúmil 📜 | sonnet | Multi-source fact-finding, verification, synthesis |
-| `craftsman` | Celebrimbor 💍 | sonnet | Autonomous coding, multi-file changes, end-to-end implementation |
-| `planner` | Finrod 🏰 | sonnet | Requirements interview, strategic planning, plan output |
-| `writer` | Maglor 🎶 | sonnet | Long-form prose, docs, reports, summaries |
-| `reviewer` | Eönwë 🏳️ | sonnet | Plan gate: OKAY/REJECT with max 3 blockers |
-| `librarian` | Pengolodh 📚 | haiku | Fast docs/API reference and code search |
-| `scout` | Legolas 🏹 | haiku | Fast recon, broad codebase sweeps, fire-and-forget |
-| `preplanner` | Melian 🌿 | haiku | Intent classification, hidden-requirement surfacing (read-only) |
+| subagent_type | Model | Role |
+|---|---|---|
+| `thinker` | opus | Architecture decisions, tradeoff analysis, structured reasoning |
+| `researcher` | sonnet | Multi-source fact-finding, verification, synthesis |
+| `craftsman` | sonnet | Autonomous coding, multi-file changes, end-to-end implementation |
+| `planner` | sonnet | Requirements interview, strategic planning, plan output |
+| `writer` | sonnet | Long-form prose, docs, reports, summaries |
+| `reviewer` | sonnet | Plan gate: OKAY/REJECT with max 3 blockers |
+| `librarian` | haiku | Fast docs/API reference and code search |
+| `scout` | haiku | Fast recon, broad codebase sweeps, fire-and-forget |
+| `preplanner` | haiku | Intent classification, hidden-requirement surfacing (read-only) |
 
-Default (output style): **Orchestrator (Aulë ⚒️)**. It runs on the session model.
+Default (output style): **Orchestrator**. It runs on the session model.
 
 ### Planning pipeline
-`preplanner (Melian)` → `planner (Finrod)` → `reviewer (Eönwë)` → execution by `craftsman`/orchestrator.
+`preplanner` → `planner` → `reviewer` → execution by `craftsman`/orchestrator.
 
 ### Delegation guide
 - Web research / verifying claims → `researcher`

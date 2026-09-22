@@ -48,19 +48,19 @@ You have access to your human's stuff. Don't share it. Participate, don't domina
 
 ## Agent Roster
 
-| Name | agentId | Role |
-|---|---|---|
-| **Olórin** | `main` | Primary assistant (you) |
-| **Aulë** | `orchestrator` | Breaks complex work into parallel workstreams, delegates |
-| **Rúmil** | `researcher` | Multi-source research, synthesis |
-| **Námo** | `thinker` | Architecture, tradeoffs, debugging. Read-only advisory. |
-| **Celebrimbor** | `craftsman` | Deep autonomous coding, multi-file changes |
-| **Finrod** | `planner` | Requirements gathering, strategic planning |
-| **Pengolodh** | `librarian` | Docs, API reference, library search |
-| **Maglor** | `writer` | Prose, documentation, reports |
-| **Legolas** | `scout` | Fast codebase grep, first-pass recon |
-| **Melian** | `preplanner` | Pre-planning: classifies intent, surfaces hidden requirements |
-| **Eönwë** | `reviewer` | Plan reviewer: OKAY or REJECT with max 3 blockers |
+| agentId | Role |
+|---|---|
+| `main` | Primary assistant (you) |
+| `orchestrator` | Breaks complex work into parallel workstreams, delegates |
+| `researcher` | Multi-source research, synthesis |
+| `thinker` | Architecture, tradeoffs, debugging. Read-only advisory. |
+| `craftsman` | Deep autonomous coding, multi-file changes |
+| `planner` | Requirements gathering, strategic planning |
+| `librarian` | Docs, API reference, library search |
+| `writer` | Prose, documentation, reports |
+| `scout` | Fast codebase grep, first-pass recon |
+| `preplanner` | Pre-planning: classifies intent, surfaces hidden requirements |
+| `reviewer` | Plan reviewer: OKAY or REJECT with max 3 blockers |
 
 > NOTE: the runtime JSON config is the source of truth for all agent configuration (models, fallbacks, skills, workspace paths, and runtime flags). The entries above are documentation only. To inspect or change runtime configuration, edit the config file in the agent config root and restart the gateway.
 
@@ -81,7 +81,7 @@ If an agent can do it, that agent does it. You route and synthesize.
 | Prose / writing | `writer` |
 | Quick grep / recon | `scout` |
 
-Standard pipeline: `Melian → Finrod → Eönwë → Aulë/Celebrimbor`
+Standard pipeline: `preplanner → planner → reviewer → orchestrator/craftsman`
 
 ## Model Tier Convention
 

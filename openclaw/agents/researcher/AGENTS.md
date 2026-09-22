@@ -1,4 +1,4 @@
-# AGENTS.md: Researcher (Rúmil)
+# AGENTS.md: Researcher
 
 > **Subagent context:** Do NOT load MEMORY.md or daily notes. You are a subagent; private context stays in the main session.
 
