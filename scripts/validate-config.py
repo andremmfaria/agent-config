@@ -37,6 +37,7 @@ def check(condition: bool, msg: str) -> None:
 # Frontmatter parser (no PyYAML - line-based scanner)
 # ---------------------------------------------------------------------------
 
+
 def parse_frontmatter(path: Path) -> dict[str, str] | None:
     """Return key→value dict for YAML frontmatter, or None if absent.
 
@@ -66,6 +67,7 @@ def parse_frontmatter(path: Path) -> dict[str, str] | None:
 # ---------------------------------------------------------------------------
 # 1. JSON config path references
 # ---------------------------------------------------------------------------
+
 
 def collect_claude_paths(data: dict) -> list[str]:
     """Return all file paths referenced in claude.json."""
@@ -170,6 +172,7 @@ def validate_claude_agents() -> None:
 # 3. Output-styles frontmatter (same convention as agents)
 # ---------------------------------------------------------------------------
 
+
 def validate_output_styles() -> None:
     styles_dir = REPO_ROOT / "claude" / "output-styles"
     md_files = sorted(styles_dir.glob("*.md"))
@@ -192,8 +195,72 @@ def validate_output_styles() -> None:
 
 
 # ---------------------------------------------------------------------------
+# 4. Claude skills (claude/skills/*): each directory must be a SKILL.md
+#    skill or a Claude Code plugin (terraform-lsp: .claude-plugin/plugin.json,
+#    no SKILL.md). SKILL.md frontmatter must carry name + description, and
+#    name must match the directory name (apply-skills.sh keys off dirname).
+# ---------------------------------------------------------------------------
+
+SKILL_KEYS = ("name", "description")
+
+
+def validate_claude_skills() -> None:
+    skills_dir = REPO_ROOT / "claude" / "skills"
+    if not skills_dir.is_dir():
+        fail(f"Skills directory missing: {skills_dir.relative_to(REPO_ROOT)}")
+        return
+
+    # synced/ is harness-managed, not a user skill, and is gitignored - skip
+    # it defensively in case it is ever present on disk during a local run.
+    skill_dirs = sorted(
+        d for d in skills_dir.iterdir() if d.is_dir() and d.name != "synced"
+    )
+    check(len(skill_dirs) > 0, "No skill directories found under claude/skills/")
+
+    plugin_count = 0
+    skill_count = 0
+    for d in skill_dirs:
+        rel = d.relative_to(REPO_ROOT)
+        skill_md = d / "SKILL.md"
+        plugin_json = d / ".claude-plugin" / "plugin.json"
+
+        if plugin_json.exists():
+            plugin_count += 1
+            try:
+                json.loads(plugin_json.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as exc:
+                fail(f"[{rel}/.claude-plugin/plugin.json] JSON parse error: {exc}")
+            continue
+
+        if not skill_md.exists():
+            fail(f"[{rel}] neither SKILL.md nor .claude-plugin/plugin.json found")
+            continue
+
+        skill_count += 1
+        fm = parse_frontmatter(skill_md)
+        if fm is None:
+            fail(f"[{rel}/SKILL.md] no YAML frontmatter found")
+            continue
+        for key in SKILL_KEYS:
+            check(
+                bool(fm.get(key)),
+                f"[{rel}/SKILL.md] missing or empty frontmatter key: '{key}'",
+            )
+        name = fm.get("name")
+        if name and name != d.name:
+            fail(
+                f"[{rel}/SKILL.md] frontmatter name '{name}' does not match directory name '{d.name}'"
+            )
+
+    print(
+        f"  claude/skills/: {len(skill_dirs)} directories checked ({skill_count} SKILL.md, {plugin_count} plugin)"
+    )
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     print("Validating agent-config repo...")
@@ -206,6 +273,10 @@ def main() -> int:
     print("Agent frontmatter (claude/):")
     validate_claude_agents()
     validate_output_styles()
+
+    print()
+    print("Skills (claude/):")
+    validate_claude_skills()
 
     print()
     print(f"Checks run: {CHECKS}")
