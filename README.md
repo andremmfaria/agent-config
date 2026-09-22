@@ -14,6 +14,7 @@ openclaw/agents/             OpenClaw specialist AGENTS.md, SOUL.md, and IDENTIT
 openclaw/openclaw.json       Portable OpenClaw-style agent configuration
 claude/                      Claude Code global prompt, agents, and output styles
 claude/hooks/                Claude Code hooks (hard-layer gates, context re-injection, style/quality/ux)
+claude/skills/               Claude Code skills (additive-only; deployed by claude/apply-skills.sh)
 openclaw/plugins/            OpenClaw plugin mirroring the same hooks via the typed plugin hook API
 openclaw/exec-approvals.json OpenClaw exec approvals (per-agent shell allowlists / deny)
 claude/claude.json           Portable Claude-style agent configuration
@@ -28,6 +29,7 @@ private/                     Ignored local-only drop zone; only private/README.m
 - specialist agent role prompts, souls, and identities
 - Claude Code `CLAUDE.md`, agent prompts, and output styles
 - Claude Code hook scripts that gate dangerous tool calls (`claude/hooks/`)
+- Claude Code skills (`claude/skills/`)
 - shared prompt blocks and prompt-injection eval fixtures (`shared/`)
 - sync/check scripts
 - portable runtime configuration JSON
@@ -97,6 +99,20 @@ Copies each `claude/agents/*.md` file into `~/.claude/agents/`. Claude Code read
 # Apply for real (backs up any existing destination files first)
 ./claude/apply-agents.sh
 ```
+
+### Claude Code skills: `claude/apply-skills.sh`
+
+Copies each `claude/skills/*` directory into `~/.claude/skills/`. It is additive and updating only: it never deletes a live skill directory that has no counterpart in the repo, and within a skill it only adds or overwrites the files the repo tracks, so vendored dependencies not tracked in the repo (like `atlassian`'s `node_modules`) survive every apply run untouched. The `synced/` directory is harness-managed, not a user skill, and is never read from or written to. Comparison for `unchanged` is per-file sha256, restricted to files the repo tracks, but reporting stays per-skill. Existing live skill directories are backed up in full before being overwritten.
+
+```bash
+# Dry-run: print what would be copied, write nothing
+./claude/apply-skills.sh --dry-run
+
+# Apply for real (backs up any existing destination directories first)
+./claude/apply-skills.sh
+```
+
+After deploying, `atlassian` needs `npm install` run inside `~/.claude/skills/atlassian/` once, since its `node_modules` is not tracked in the repo.
 
 ## Verify
 
