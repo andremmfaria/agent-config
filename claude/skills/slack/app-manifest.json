@@ -1,0 +1,37 @@
+{
+  "display_information": {
+    "name": "andre-cli",
+    "description": "Personal CLI automation (curl + user token), acts as André",
+    "background_color": "#2c2d30"
+  },
+  "oauth_config": {
+    "scopes": {
+      "user": [
+        "chat:write",
+        "channels:read",
+        "channels:history",
+        "channels:write",
+        "groups:read",
+        "groups:history",
+        "im:read",
+        "im:write",
+        "im:history",
+        "mpim:read",
+        "mpim:write",
+        "mpim:history",
+        "users:read",
+        "users:read.email",
+        "search:read",
+        "reactions:read",
+        "reactions:write",
+        "files:read",
+        "files:write"
+      ]
+    }
+  },
+  "settings": {
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "token_rotation_enabled": false
+  }
+}

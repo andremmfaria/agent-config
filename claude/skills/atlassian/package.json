@@ -1,0 +1,11 @@
+{
+  "name": "atlassian-skill-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Node tooling for the atlassian Claude skill",
+  "scripts": {},
+  "dependencies": {
+    "@atlaskit/editor-json-transformer": "^8.33.1",
+    "@atlaskit/editor-markdown-transformer": "^5.21.1"
+  }
+}

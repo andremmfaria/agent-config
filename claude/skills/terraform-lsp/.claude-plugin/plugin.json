@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "terraform-lsp",
+  "version": "1.0.0",
+  "description": "Terraform/OpenTofu language server (terraform-ls) for code intelligence",
+  "author": {
+    "name": "Andre Faria",
+    "email": "amarcalfaria@waratek.com"
+  },
+  "lspServers": {
+    "terraform-ls": {
+      "command": "terraform-ls",
+      "args": ["serve"],
+      "extensionToLanguage": {
+        ".tf": "terraform",
+        ".tfvars": "terraform-vars",
+        ".hcl": "terraform"
+      }
+    }
+  }
+}
