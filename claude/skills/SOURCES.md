@@ -28,3 +28,11 @@ Home grown, no upstream. These encode conventions specific to this estate (keyri
 | `sre-tools` | `ecs-diag.sh`, spawns a temporary SSM-enabled diagnostic Fargate container cloned from a target ECS service |
 | `web-access` | Three-layer fetch escalation: WebFetch, then `playwright-cli`, then Fortress ([tiliondev/fortress](https://github.com/tiliondev/fortress), BSD 3-Clause) |
 | `terraform-lsp` | Not a skill, a Claude Code plugin declaring an `lspServers` entry for `terraform-ls`. Covers `.tf`, `.tfvars` and `.hcl` |
+
+## Excluded from version control
+
+`atlassian/node_modules` (46M) is not tracked. Run `npm install` in that directory after deploying.
+
+`impeccable/scripts/data/font-index.json` (1.1M of generated font metrics) is not tracked. Nothing in the vendored tree references it: it serves the platform binary that `scripts/impeccable` fetches on first run, so it arrives with that binary rather than being committed here.
+
+The harness-managed `synced/` directory is not tracked either, and `apply-skills.sh` skips it.
