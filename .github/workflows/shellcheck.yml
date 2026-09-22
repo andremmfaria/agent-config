@@ -13,4 +13,4 @@ jobs:
       - name: Install shellcheck
         run: sudo apt-get update -qq && sudo apt-get install -y shellcheck
       - name: Run shellcheck
-        run: shellcheck scripts/*.sh openclaw/apply-agents.sh claude/apply-agents.sh
+        run: shellcheck scripts/*.sh openclaw/apply-agents.sh claude/apply-agents.sh claude/apply-skills.sh
