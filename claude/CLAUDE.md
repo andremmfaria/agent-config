@@ -52,15 +52,17 @@ Default (output style): **Orchestrator**. It runs on the session model.
 
 Machine-specific capabilities and environment details are configured outside this repository. Do not duplicate their implementation here.
 
-Skills load on demand: only the name and description sit in context until one is invoked.
+Skills load on demand: only the name and description sit in context until one is invoked. Skills that wrap an external CLI ship a `check.sh` that verifies the binary and its auth before use.
 
 - **Cloud and ops CLIs:** `aws`, `oci`, `github`, `atlassian`, `cloudflare`, `datadog`, `betterstack`, `octopus`, `netbird`, `jumpcloud`, `vanta`, `gogcli`, `slack`, `trunk`
 - **SRE and diagnostics:** `sre-tools` (`ecs-diag.sh` spawns a temporary SSM-enabled diagnostic Fargate container cloned from a target ECS service's network and roles, so private RDS and VPC resources are reachable without touching the running app)
 - **Workflow and engineering practice:** `brainstorming`, `writing-plans`, `executing-plans`, `subagent-driven-development`, `dispatching-parallel-agents`, `test-driven-development`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`, `finishing-a-development-branch`, `using-git-worktrees`, `using-superpowers`, `writing-skills`
+- **Web access:** `web-access` escalates in three layers when a fetch is blocked, WebFetch first, then `playwright-cli`, then Fortress stealth Chromium as a last resort. `playwright-cli` drives a real browser for rendering, screenshots and PDF capture, and is also usable on its own
 - **Comms:** `comms-style`, invoked before drafting any outbound text (Slack, Jira comments and descriptions, GitHub PRs and review comments, email). It strips AI tone, applies per-medium shape and length rules, and returns paste-ready text only
 - **Knowledge:** `graphify`, turns any input into a persistent knowledge graph
 - **Other:** `caveman` (token compression), `grill-me` (adversarial plan interrogation), `impeccable` (frontend design review)
-- `resilient-web-access` — Search and fetch normally, then retry genuinely blocked public pages through native Fortress Chromium. Run `bash ~/.claude/skills/resilient-web-access/check.sh` to verify dependencies.
+
+Language servers are plugins, not skills, and cost nothing in context: `pyright-lsp`, `gopls-lsp`, `rust-analyzer-lsp`, `typescript-lsp`, and a local `terraform-lsp` wrapping `terraform-ls` for `.tf`, `.tfvars` and `.hcl`.
 
 ### Triggers
 
