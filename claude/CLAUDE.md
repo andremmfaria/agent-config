@@ -60,7 +60,7 @@ Skills load on demand: only the name and description sit in context until one is
 - **Web access:** `web-access` escalates in three layers when a fetch is blocked, WebFetch first, then `playwright-cli`, then Fortress stealth Chromium as a last resort. `playwright-cli` drives a real browser for rendering, screenshots and PDF capture, and is also usable on its own
 - **Comms:** `comms-style`, invoked before drafting any outbound text (Slack, Jira comments and descriptions, GitHub PRs and review comments, email). It strips AI tone, applies per-medium shape and length rules, and returns paste-ready text only
 - **Knowledge:** `graphify`, turns any input into a persistent knowledge graph
-- **Other:** `caveman` (token compression), `grill-me` (adversarial plan interrogation), `impeccable` (frontend design review)
+- **Other:** `caveman` (token compression), `grilling` (adversarial plan interrogation), `impeccable` (frontend design review)
 
 Language servers are plugins, not skills, and cost nothing in context: `pyright-lsp`, `gopls-lsp`, `rust-analyzer-lsp`, `typescript-lsp`, and a local `terraform-lsp` wrapping `terraform-ls` for `.tf`, `.tfvars` and `.hcl`.
 
