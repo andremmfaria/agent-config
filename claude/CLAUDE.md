@@ -55,6 +55,7 @@ Machine-specific capabilities and environment details are configured outside thi
 Skills load on demand: only the name and description sit in context until one is invoked. Skills that wrap an external CLI ship a `check.sh` that verifies the binary and its auth before use.
 
 - **Cloud and ops CLIs:** `aws`, `oci`, `github`, `atlassian`, `cloudflare`, `datadog`, `betterstack`, `octopus`, `netbird`, `jumpcloud`, `vanta`, `gogcli`, `slack`, `trunk`
+- **Trading:** `ibkr` (Interactive Brokers via IB Gateway, paper and read-only by policy) and `alpaca` (Alpaca paper account and free market data, read-only, data source only)
 - **SRE and diagnostics:** `sre-tools` (`ecs-diag.sh` spawns a temporary SSM-enabled diagnostic Fargate container cloned from a target ECS service's network and roles, so private RDS and VPC resources are reachable without touching the running app)
 - **Workflow and engineering practice:** `brainstorming`, `writing-plans`, `executing-plans`, `subagent-driven-development`, `dispatching-parallel-agents`, `test-driven-development`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`, `finishing-a-development-branch`, `using-git-worktrees`, `using-superpowers`, `writing-skills`
 - **Web access:** `web-access` escalates in three layers when a fetch is blocked, WebFetch first, then `playwright-cli`, then Fortress stealth Chromium as a last resort. `playwright-cli` drives a real browser for rendering, screenshots and PDF capture, and is also usable on its own
@@ -70,7 +71,7 @@ When the user types `/graphify`, use the installed `graphify` skill (`~/.claude/
 
 ## Integrations
 
-Prefer a shell CLI plus its skill over an MCP server for any integration that offers both. AWS, GitHub, Atlassian, Datadog, BetterStack, Cloudflare, Vanta, Google Workspace, Octopus and NetBird are all driven through their CLI and skill deliberately, not through an MCP server. Reach for an MCP server only where no CLI path exists.
+Prefer a shell CLI plus its skill over an MCP server for any integration that offers both. AWS, GitHub, Atlassian, Datadog, BetterStack, Cloudflare, Vanta, Google Workspace, Octopus, NetBird, IBKR and Alpaca are all driven through their CLI and skill deliberately, not through an MCP server. Reach for an MCP server only where no CLI path exists.
 
 ## Permissions
 

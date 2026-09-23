@@ -24,6 +24,8 @@ Home grown, no upstream. These encode conventions specific to this estate (keyri
 | Skill | Notes |
 |---|---|
 | `atlassian`, `aws`, `betterstack`, `cloudflare`, `datadog`, `github`, `gogcli`, `jumpcloud`, `netbird`, `oci`, `octopus`, `slack`, `trunk`, `vanta` | CLI wrappers, one per integration. Each documents the shell CLI and its auth, and most ship a `check.sh` that verifies the binary and its credentials |
+| `ibkr` | Wraps the `ibkr` CLI against a local IB Gateway, paper profile only, wrapper refuses order submission and live profiles |
+| `alpaca` | Wraps the official `alpaca` CLI, paper keys only, wrapper whitelists read-only commands and refuses live trading, order submission and transfers |
 | `comms-style` | Outbound text style rules, per medium |
 | `sre-tools` | `ecs-diag.sh`, spawns a temporary SSM-enabled diagnostic Fargate container cloned from a target ECS service |
 | `web-access` | Three-layer fetch escalation: WebFetch, then `playwright-cli`, then Fortress ([tiliondev/fortress](https://github.com/tiliondev/fortress), BSD 3-Clause) |
